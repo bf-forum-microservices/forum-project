@@ -1,0 +1,28 @@
+# Shared defaults for ALL services
+server:
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: shared-config
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    com.forum: DEBUG
