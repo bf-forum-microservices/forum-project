@@ -1,0 +1,13 @@
+#spring:
+#  application:
+#    name: auth-service # look up auth-service.yml
+#  cloud:
+#    config:
+#      uri: http://localhost:8888 # URL of your config-server
+
+spring:
+  application:
+    name: auth-service # look up auth-service.yml
+
+  config:
+    import: "configserver:http://localhost:8888"  # URL of your config-server
