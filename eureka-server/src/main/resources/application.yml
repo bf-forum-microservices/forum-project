@@ -1,0 +1,17 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+  cloud:
+    config:
+      uri: http://localhost:8888
+      name: eureka-server
+  profiles:
+    active: native
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
