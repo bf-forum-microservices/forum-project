@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/test")
 public class AuthTestController {
 
     private final TestRepository testRepository;

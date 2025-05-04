@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:mysql://db-forum.cbo484u0k6u3.us-east-2.rds.amazonaws.com/forum_db
     username: admin
-    password: xxxxx
+    password: Admin123!
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

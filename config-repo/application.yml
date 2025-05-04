@@ -4,8 +4,6 @@ server:
     include-message: always
 
 spring:
-  application:
-    name: shared-config
   main:
     allow-bean-definition-overriding: true
   jackson:
