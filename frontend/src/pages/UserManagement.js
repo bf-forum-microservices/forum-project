@@ -8,7 +8,7 @@ const UserManagement = () => {
 
     const fetchUsers = async () => {
         // const res = await fetch('http://localhost:8080/auth/users');
-        const res = await fetch('http://localhost:8081/auth');
+        const res = await fetch('http://localhost:8080/auth/test');
         const data = await res.text();
         //setUsers(data);
         setMessage(data);

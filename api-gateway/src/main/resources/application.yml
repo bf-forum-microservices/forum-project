@@ -2,9 +2,23 @@ spring:
   application:
     name: api-gateway
   cloud:
-    config:
-      uri: http://localhost:8888
-      name: api-gateway
+#    config:
+#      uri: http://localhost:8888
+#      name: api-gateway
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+  logging:
+    level:
+      org.springframework.cloud.gateway: DEBUG
+      reactor.netty: DEBUG
+
+
 eureka:
   client:
     service-url:

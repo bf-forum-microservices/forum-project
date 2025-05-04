@@ -1,6 +1,9 @@
 spring:
   application:
     name: auth-service
+  logging:
+    level:
+      org.springframework.cloud.gateway: DEBUG
 
   config:
     import: configserver:http://localhost:8888
