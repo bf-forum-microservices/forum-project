@@ -10,5 +10,4 @@ spring:
         native:
           search-locations: file:../config-repo
 
-
           # /Users/crystalzhao95/react-tabs-hw/forum-project/config-repo
