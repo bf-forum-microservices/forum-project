@@ -4,8 +4,10 @@ server:
 spring:
   application:
     name: eureka-server
-  config:
-    import: configserver:http://localhost:8888
+  cloud:
+    config:
+      uri: http://localhost:8888
+      name: eureka-server
   profiles:
     active: native
 
