@@ -1,8 +1,4 @@
 spring:
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
   datasource:
     url: jdbc:mysql://db-forum.cbo484u0k6u3.us-east-2.rds.amazonaws.com/forum_db
     username: admin
@@ -13,6 +9,9 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
+  data:
+    mongodb:
+      uri: mongodb+srv://zhengh1005:273732390@cluster1.e5kwehs.mongodb.net/tempDB?retryWrites=true&w=majority&appName=Cluster1
 
 server:
   port: 8081
