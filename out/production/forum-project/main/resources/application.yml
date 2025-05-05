@@ -1,17 +1,9 @@
-server:
-  port: 8761
-
 spring:
   application:
-    name: eureka-server
-  cloud:
-    config:
-      uri: http://localhost:8888
-      name: eureka-server
-  profiles:
-    active: native
+    name: auth-service
+  logging:
+    level:
+      org.springframework.cloud.gateway: DEBUG
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+  config:
+    import: configserver:http://localhost:8888
