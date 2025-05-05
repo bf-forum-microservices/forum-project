@@ -1,14 +1,12 @@
-package com.example.userservice.controller;
+package com.forum.userservice.controller;
 
-import com.example.userservice.dto.UserIdRequestDTO;
-import jakarta.validation.Valid;
+import com.forum.userservice.dto.UserIdRequestDTO;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@RequestMapping("/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     @PutMapping("/updateProfile")

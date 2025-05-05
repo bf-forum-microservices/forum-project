@@ -1,6 +1,6 @@
-package com.example.userservice.dto;
+package com.forum.userservice.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data

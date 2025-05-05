@@ -1,11 +1,11 @@
-package com.example.userservice.controller;
+package com.forum.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin") // This maps to /users/admin via API Gateway
+@RequestMapping("/users/admin") // This maps to /users/admin via API Gateway
 @RequiredArgsConstructor
 public class AdminController {
 
