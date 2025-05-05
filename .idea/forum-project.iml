@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/api-gateway/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/eureka-server/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/user-service" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/message-service/src/main/java" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -13,5 +14,11 @@
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.7.18" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.7.18" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.data:spring-data-jpa:2.7.18" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-web:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.18.30" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.security:spring-security-config:5.7.11" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.security:spring-security-web:5.7.11" level="project" />
   </component>
 </module>
