@@ -1,6 +1,6 @@
 spring:
   application:
-    name: api-gateway
+    name: user-service
   logging:
     level:
       org.springframework.security: DEBUG
@@ -8,4 +8,4 @@ spring:
       org.springframework.boot.autoconfigure.security: DEBUG
 
   config:
-    import: configserver:http://localhost:8888/
+    import: configserver:http://localhost:8888

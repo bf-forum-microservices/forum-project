@@ -8,8 +8,12 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/auth/**
-          filters:
-            - StripPrefix=1
+#          filters:
+#            - StripPrefix=1
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -27,6 +31,9 @@ spring:
       org.springframework.cloud.gateway: TRACE
       org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE
       org.springframework.web.reactive.DispatcherHandler: TRACE
+
+jwt:
+  secret: YourSuperSecretKey12345678901234567890
 
 eureka:
   client:
