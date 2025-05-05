@@ -9,8 +9,8 @@ import com.forum.authService.Repository.TestRepository;
 import org.springframework.web.bind.annotation.*;
 
 
-@RestController
-@RequestMapping("/test")
+//@RestController
+//@RequestMapping("/test")
 public class AuthTestController {
 
     private final TestRepository testRepository;

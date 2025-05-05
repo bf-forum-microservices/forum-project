@@ -3,8 +3,9 @@ spring:
     name: api-gateway
   logging:
     level:
-      org.springframework.cloud.gateway: DEBUG
-      reactor.netty: DEBUG
+      org.springframework.security: DEBUG
+      org.springframework.web: DEBUG
+      org.springframework.boot.autoconfigure.security: DEBUG
 
   config:
     import: configserver:http://localhost:8888/
