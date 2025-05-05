@@ -15,8 +15,8 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/users/**
-          filters: []
-#            - StripPrefix=1
+          filters:
+            - StripPrefix=1
 
       globalcors:
         corsConfigurations:
