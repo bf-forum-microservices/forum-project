@@ -10,6 +10,14 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+          filters: []
+#            - StripPrefix=1
+
       globalcors:
         corsConfigurations:
           '[/**]':
