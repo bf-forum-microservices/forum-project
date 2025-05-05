@@ -24,7 +24,12 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         System.out.println(path);
 
         // 1. Allow public paths
-        if (path.startsWith("/auth") || path.equals("/contact") || path.equals("/users/register") || path.equals("/users/verify-email")) {
+        if (path.startsWith("/auth")
+                || path.startsWith("/contact")
+                || path.startsWith("/users/register")
+                || path.startsWith("/users/verify-email")
+                || path.startsWith("/admin/messages")) {
+            System.out.println("Allowed public route: " + path);
             return chain.filter(exchange);
         }
 
@@ -32,6 +37,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         // exchange: the incoming HTTP request & response.
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("MADE IT HERE 2");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
