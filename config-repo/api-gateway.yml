@@ -18,7 +18,7 @@ spring:
         - id: post-reply-service
           uri: lb://post-reply-service
           predicates:
-            - Path=/posts/**
+            - Path=/postandreply/**
 
       globalcors:
         corsConfigurations:
