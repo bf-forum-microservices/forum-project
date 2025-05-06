@@ -12,11 +12,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        System.out.println("Applying Security Config");
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/auth/login", "/users/register", "/users/verify-email", "/contact-us", "/users/**").permitAll()
+                        .pathMatchers("/auth/login", "/users/register", "/users/verify-email", "/contact-us", "/admin/messages/**","/users/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .build();

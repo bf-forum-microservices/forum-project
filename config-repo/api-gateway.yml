@@ -13,6 +13,10 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/users/**
+        - id: message-service
+          uri: lb://message-service
+          predicates:
+            - Path=/admin/messages/**
       globalcors:
         corsConfigurations:
           '[/**]':
