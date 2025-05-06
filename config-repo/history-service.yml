@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: history-service
+
+  datasource:
+    url: jdbc:mysql://userdb.cbo484u0k6u3.us-east-2.rds.amazonaws.com:3306/user_service_db?useSSL=false&serverTimezone=UTC
+    username: admin
+    password: Admin123!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  port: 8084
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true

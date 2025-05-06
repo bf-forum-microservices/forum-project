@@ -23,6 +23,12 @@ spring:
           uri: lb://message-service
           predicates:
             - Path=/admin/messages/**
+
+        - id: history-service
+          uri: lb://history-service
+          predicates:
+            - Path=/history/**
+
       globalcors:
         corsConfigurations:
           '[/**]':
