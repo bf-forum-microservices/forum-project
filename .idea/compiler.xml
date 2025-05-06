@@ -10,8 +10,9 @@
         <module name="api-gateway" />
         <module name="config-server" />
         <module name="eureka-server" />
+        <module name="post-reply-service" />
       </profile>
-      <profile name="Annotation profile for message-service" enabled="true">
+      <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -31,6 +32,7 @@
       <module name="config-server" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="message-service" options="-parameters" />
+      <module name="post-reply-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>

@@ -1,0 +1,146 @@
+package com.example.postreplyservice.Controller;
+
+import com.example.postreplyservice.Entity.Post;
+import com.example.postreplyservice.Entity.PostReply;
+import com.example.postreplyservice.Entity.SubReply;
+import com.example.postreplyservice.Repository.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/postandreply")
+public class PostReplyController {
+
+    @Autowired
+    private PostRepository postRepository;
+
+    // 创建新帖子（发布）
+    @PostMapping("/newPost")
+    public Post createPost(@RequestBody Post post) {
+        post.setDateCreated(new Date());
+        post.setDateModified(new Date());
+        post.setIsArchived(false);
+        post.setStatus("PUBLISHED");
+        return postRepository.save(post);
+    }
+
+    // 创建草稿帖子
+    @PostMapping("/draftPost")
+    public Post createDraft(@RequestBody Post post) {
+        post.setDateCreated(new Date());
+        post.setDateModified(new Date());
+        post.setIsArchived(false);
+        post.setStatus("DRAFT");
+        return postRepository.save(post);
+    }
+
+    // 获取所有非归档帖子（已发布）
+    @GetMapping("/viewPosts")
+    public List<Post> getViewedPosts() {
+        return postRepository.findByIsArchivedFalse();
+    }
+
+    // 获取某个用户的所有帖子
+    @GetMapping("/userAllposts/{userId}")
+    public List<Post> getUserPosts(@PathVariable Long userId) {
+        return postRepository.findByUserId(userId);
+    }
+
+    // 获取帖子详情（包括回复）
+    @GetMapping("/singlePosts/{id}")
+    public Optional<Post> getPostDetails(@PathVariable String id) {
+        return postRepository.findById(id);
+    }
+
+    // 添加一个回复（PostReply）到帖子
+    @PostMapping("/posts/{id}/replies")
+    public Post addReply(@PathVariable String id, @RequestBody PostReply reply) {
+        Optional<Post> postOptional = postRepository.findById(id);
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            reply.setDateCreated(new Date());
+            post.getPostReplies().add(reply);
+            return postRepository.save(post);
+        }
+        throw new RuntimeException("Post not found");
+    }
+
+    // ✅ 添加子回复（只支持一层）
+    @PostMapping("/replies/{id}/sub-replies")
+    public Post addSubReply(@PathVariable String id, @RequestBody SubReply subReply) {
+        for (Post post : postRepository.findAll()) {
+            for (PostReply reply : post.getPostReplies()) {
+                if (reply.getReplyId().equals(id)) {
+                    subReply.setDateCreated(new Date());
+                    reply.getSubReplies().add(subReply);
+                    return postRepository.save(post);
+                }
+            }
+        }
+        throw new RuntimeException("Reply not found");
+    }
+
+
+    // ✅ 获取某用户草稿或已发布帖子（通过参数 status 控制）
+    @GetMapping("/posts/user/{userId}")
+    public List<Post> getUserPostsByStatus(@PathVariable Long userId, @RequestParam String status) {
+        return postRepository.findByUserIdAndStatus(userId, status.toUpperCase());
+    }
+
+    // ✅ 获取某用户按回复数前 3 的帖子
+    @GetMapping("/posts/top/{userId}")
+    public List<Post> getTop3PostsByReplyCount(@PathVariable Long userId) {
+        return postRepository.findByUserId(userId).stream()
+                .filter(post -> post.getPostReplies() != null)
+                .sorted((p1, p2) -> Integer.compare(
+                        p2.getPostReplies().size(), p1.getPostReplies().size()))
+                .limit(3)
+                .toList();
+    }
+
+    // Admin 获取所有帖子
+    @GetMapping("/admin/userAllposts")
+    public List<Post> getAllPostsForAdmin() {
+        return postRepository.findAll();
+    }
+
+    // Admin 禁用帖子
+    @PutMapping("/admin/posts/{id}/ban")
+    public Post banPost(@PathVariable String id) {
+        Post post = postRepository.findById(id).orElseThrow();
+        post.setStatus("BANNED");
+        return postRepository.save(post);
+    }
+
+    // Admin 启用帖子
+    @PutMapping("/admin/posts/{id}/unban")
+    public Post unbanPost(@PathVariable String id) {
+        Post post = postRepository.findById(id).orElseThrow();
+        post.setStatus("PUBLISHED");
+        return postRepository.save(post);
+    }
+
+    // Admin 获取所有被禁用的帖子
+    @GetMapping("/admin/posts/banned")
+    public List<Post> getBannedPosts() {
+        return postRepository.findByStatus("BANNED");
+    }
+
+    // Admin 获取所有被删除的帖子
+    @GetMapping("/admin/posts/deleted")
+    public List<Post> getDeletedPosts() {
+        return postRepository.findByIsArchivedTrue();
+    }
+
+    // Admin 恢复被删除的帖子
+    @PutMapping("/admin/posts/{id}/recover")
+    public Post recoverPost(@PathVariable String id) {
+        Post post = postRepository.findById(id).orElseThrow();
+        post.setIsArchived(false);
+        return postRepository.save(post);
+    }
+}
