@@ -1,10 +1,7 @@
 package com.forum.userservice.service;
 
 import com.forum.userservice.Enum.UserRole;
-import com.forum.userservice.dto.LoginRequestDTO;
-import com.forum.userservice.dto.RegisterRequestDTO;
-import com.forum.userservice.dto.RegisterReturnDTO;
-import com.forum.userservice.dto.UserDTO;
+import com.forum.userservice.dto.*;
 import com.forum.userservice.entity.User;
 import com.forum.userservice.repository.UserAuthRepository;
 import lombok.RequiredArgsConstructor;
@@ -99,4 +96,80 @@ public class UserService {
 
         return ResponseEntity.ok(userDTO);
     }
+
+    public void updateProfile(UpdateProfileRequestDTO dto) {
+        User user = userAuthRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setProfileImageURL(dto.getProfileImageURL());
+
+        userAuthRepository.save(user);
+    }
+
+    @Transactional
+    public void requestEmailUpdate(String currentEmail, String newEmail) {
+        User user = userAuthRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPendingEmail(newEmail);
+        user.setVerificationCode(generate6DigitCode());
+
+        // send verification email to pending email
+        //emailPublisher.sendVerificationEmail(newEmail, user.getVerificationCode());
+        // TODO: Publish email verification message to RabbitMQ
+        if (emailPublisher != null) {
+            System.out.println("EmailPublisher not available — skipping email verification step.");
+        } else {
+            emailPublisher.sendVerificationEmail(newEmail, "dummy-token");
+        }
+
+        userAuthRepository.save(user);
+    }
+
+    @Transactional
+    public void confirmEmailUpdate(String currentEmail, String code) {
+        User user = userAuthRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!code.equals(user.getVerificationCode())) {
+            throw new RuntimeException("Invalid verification code");
+        }
+
+        user.setEmail(user.getPendingEmail());
+        user.setPendingEmail(null);
+        user.setVerificationCode(null);
+        userAuthRepository.save(user);
+    }
+
+    public UserDTO getUserInfoByEmail(String email) {
+        Optional<User> optionalUser = userAuthRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+
+        User user = optionalUser.get();
+
+        UserDTO dto = new UserDTO();
+        dto.setUserId(user.getUserId());
+        dto.setEmail(user.getEmail());
+        dto.setType(user.getType());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setProfileImageURL(user.getProfileImageURL());
+
+        return dto;
+    }
+
+    public void processContactMessage(String email, String subject, String message) {
+        // Log it or send email (or save to DB)
+        System.out.println("Contact Us message from " + email);
+        System.out.println("Subject: " + subject);
+        System.out.println("Message: " + message);
+
+        // TODO: use emailPublisher.sendContactEmail(email, subject, message); if RabbitMQ setup
+    }
+
 }
