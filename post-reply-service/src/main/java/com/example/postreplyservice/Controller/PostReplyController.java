@@ -1,4 +1,4 @@
-package com.example.postreplyservice.Coltroller;
+package com.example.postreplyservice.Controller;
 
 import com.example.postreplyservice.Entity.Post;
 import com.example.postreplyservice.Entity.PostReply;
