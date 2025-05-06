@@ -17,8 +17,9 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/auth/login", "/users/register", "/users/verify-email", "/contact-us", "/admin/messages/**",
-                                "/users/**","/postandreply/**", "/history/**").permitAll()
+                        .pathMatchers("/auth/login", "/users/register", "/users/verify-email", "/contact-us",
+                                "/admin/messages/**","/users/**", "/postandreply/**", "/history/**",
+                                "/actuator/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .build();

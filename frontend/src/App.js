@@ -10,35 +10,32 @@ import AdminHome from './pages/AdminHome';
 import MessageManagement from './pages/MessageManagement';
 import UserManagement from './pages/UserManagement';
 import Navbar from './components/Navbar';
-import EmailVerification from "./pages/TokenValidation";
+import EmailVerification from './pages/TokenValidation';
+import PrivateRoute from './PrivateRoute'; //
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <main className="py-10">
-        <Routes>
-          {/* Authentication */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/tokenValidation" element={<EmailVerification />} />
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+        <main className="py-10">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/contactus" element={<ContactAdmin />} />
 
-          {/* User Pages */}
-          <Route path="/" element={<UserHome />} /> {/* need to change to /home later once we have authorization */}
-          <Route path="/home" element={<UserHome />} /> {/* need to change to /home later once we have authorization */}
-          <Route path="/profile" element={<UserProfile />} />
-
-          {/* Contact */}
-          <Route path="/contactus" element={<ContactAdmin />} />
-
-          {/* Admin Pages */}
-          {/*<Route path="/admin/home" element={<AdminHome />} /> /!* need to change to /home later once we have authorization *!/*/}
-          <Route path="/posts/:id" element={<PostDetail />} />
-          <Route path="/messages" element={<MessageManagement />} />
-          <Route path="/users" element={<UserManagement />} />
-        </Routes>
-      </main>
-    </div>
+            {/* Protected Routes */}
+            <Route path="/" element={<PrivateRoute><UserHome /></PrivateRoute>} />
+            <Route path="/home" element={<PrivateRoute><UserHome /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
+            {/*<Route path="/admin/home" element={<PrivateRoute><AdminHome /></PrivateRoute>} />*/}
+            <Route path="/posts/:id" element={<PrivateRoute><PostDetail /></PrivateRoute>} />
+            <Route path="/messages" element={<PrivateRoute><MessageManagement /></PrivateRoute>} />
+            <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
+              <Route path="/tokenValidation" element={<PrivateRoute><EmailVerification /></PrivateRoute>} />
+          </Routes>
+        </main>
+      </div>
   );
 };
 

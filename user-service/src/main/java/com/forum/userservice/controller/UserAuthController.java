@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -21,13 +22,13 @@ public class UserAuthController {
     private static final Logger log = LoggerFactory.getLogger(UserAuthController.class);
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO registerRequest){
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequest){
         RegisterReturnDTO result = userService.registerUser(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestBody VerifyCodeDTO request) {
+    public ResponseEntity<?> verifyEmail(@Valid @RequestBody VerifyCodeDTO request) {
         log.info(" [UserService] /verify-email hit");
 
         System.out.println("Enter email");
@@ -44,7 +45,7 @@ public class UserAuthController {
 
 
     @PostMapping("/validate")
-    public ResponseEntity<UserDTO> validateUser(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<UserAuthDTO> validateUser(@RequestBody LoginRequestDTO request) {
         return userService.validateUser(request);
     }
 
