@@ -24,7 +24,11 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         System.out.println(path);
 
         // 1. Allow public paths
-        if (path.startsWith("/auth") || path.equals("/contact") || path.equals("/users/register") || path.equals("/users/verify-email")) {
+        if (path.startsWith("/auth")
+                || path.equals("/contact")
+                || path.equals("/users/register")
+                || path.equals("/users/verify-email")
+                || path.startsWith("/postandreply")) {
             return chain.filter(exchange);
         }
 
