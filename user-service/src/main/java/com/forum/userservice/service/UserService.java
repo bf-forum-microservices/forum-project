@@ -42,9 +42,10 @@ public class UserService {
         newUser.setActive(false);
         newUser.setType(UserRole.USER);
         newUser.setVerificationCode(generate6DigitCode());
-
-        // TODO
-        //newUser.setProfileImageURL(defaultProfileImage);
+            // TODO: upload photos
+//        if (newUser.getProfileImageURL() == null || newUser.getProfileImageURL().isEmpty()) {
+//            newUser.setProfileImageURL("https://your-default-image-url.com/default.jpg");
+//        }
 
         // TODO: Publish email verification message to RabbitMQ
         if (emailPublisher != null) {

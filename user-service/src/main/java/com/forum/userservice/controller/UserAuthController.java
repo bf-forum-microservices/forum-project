@@ -43,11 +43,6 @@ public class UserAuthController {
     }
 
 
-    @GetMapping("/register2")
-    public String test(){
-        return "ResponseEntity.status(HttpStatus.CREATED).body(result)";
-    }
-
     @PostMapping("/validate")
     public ResponseEntity<UserDTO> validateUser(@RequestBody LoginRequestDTO request) {
         return userService.validateUser(request);

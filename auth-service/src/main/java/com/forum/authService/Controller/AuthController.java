@@ -22,7 +22,7 @@ public class AuthController {
         // user service returns validated user.
         UserDTO user = userClient.validateUser(loginRequestDTO);
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getType().name());
+        String token = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getType().name());
         return ResponseEntity.ok(new AuthResponseDTO(user.getUserId(), user.getEmail(), user.getType().name(), token));
     }
 
