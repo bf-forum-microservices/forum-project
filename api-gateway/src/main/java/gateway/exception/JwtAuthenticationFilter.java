@@ -29,9 +29,9 @@ public class JwtAuthenticationFilter implements GlobalFilter {
                 || path.startsWith("/users/register")
                 || path.startsWith("/users/verify-email")
                 || path.startsWith("/admin/messages")
-                //|| path.startsWith("/users")
-                || path.startsWith("/postandreply")
-                || path.startsWith("/history")
+//                || path.startsWith("/users")
+//                || path.startsWith("/postandreply")
+//                || path.startsWith("/history")
         ) {
             System.out.println("Allowed public route: " + path);
             return chain.filter(exchange);
