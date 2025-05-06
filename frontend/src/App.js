@@ -32,7 +32,7 @@ const App = () => {
           <Route path="/contactus" element={<ContactAdmin />} />
 
           {/* Admin Pages */}
-          <Route path="/admin/home" element={<AdminHome />} /> {/* need to change to /home later once we have authorization */}
+          {/*<Route path="/admin/home" element={<AdminHome />} /> /!* need to change to /home later once we have authorization *!/*/}
           <Route path="/posts/:id" element={<PostDetail />} />
           <Route path="/messages" element={<MessageManagement />} />
           <Route path="/users" element={<UserManagement />} />

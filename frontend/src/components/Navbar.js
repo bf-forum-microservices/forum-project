@@ -12,8 +12,8 @@ const Navbar = () => {
                 <div className='nav-elements'>
                     <Link to="/login">Login</Link>
                     <Link to="/register">Register</Link> {/* change later once authorization happens*/}
-                    <Link to="/home">User Home</Link> {/* change later once authorization happens*/}
-                    <Link to="/admin/home">Admin Home</Link>
+                    <Link to="/home">Home Page</Link> {/* change later once authorization happens*/}
+                    {/*<Link to="/admin/home">Admin Home</Link>*/}
                     <Link to="/profile">My Profile</Link> {/* Replace 1 with dynamic user ID when available */}
                     <Link to="/contactus">Contact Admin</Link>
                     <Link to="/posts/123">Post Detail</Link> {/* Replace 123 with actual post ID */}
