@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -170,6 +172,44 @@ public class UserService {
         System.out.println("Message: " + message);
 
         // TODO: use emailPublisher.sendContactEmail(email, subject, message); if RabbitMQ setup
+    }
+
+    public List<UserDTO> getAllUserInfo() {
+        List<User> users = userAuthRepository.findAll();
+
+        return users.stream().map(user -> {
+            UserDTO dto = new UserDTO();
+            dto.setUserId(user.getUserId());
+            dto.setEmail(user.getEmail());
+            dto.setFirstName(user.getFirstName());
+            dto.setLastName(user.getLastName());
+            dto.setType(user.getType());
+            dto.setProfileImageURL(user.getProfileImageURL());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    public boolean banUserById(Long userId) {
+        Optional<User> userOpt = userAuthRepository.findById(userId);
+        if (userOpt.isEmpty()) return false;
+
+        User user = userOpt.get();
+        if (user.isBanned()) return false; // already banned
+
+        user.setBanned(true);
+        userAuthRepository.save(user);
+        return true;
+    }
+
+    public boolean activeUserById(Long userId) {
+        Optional<User> userOpt = userAuthRepository.findById(userId);
+        if (userOpt.isEmpty()) return false;
+
+        User user = userOpt.get();
+        if (!user.isBanned()) return false; // already not banned
+
+        user.setBanned(false);
+        userAuthRepository.save(user);
+        return true;
     }
 
 }
