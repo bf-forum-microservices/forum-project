@@ -43,4 +43,7 @@ public class User {
     private String pendingEmail;
 
     private boolean banned = false;
+    // TODO
+//    @Column(name = "profile_image_url")
+//    private String profileImageURL;
 }

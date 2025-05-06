@@ -3,6 +3,7 @@ package com.forum.userservice.service;
 import com.forum.userservice.Enum.UserRole;
 import com.forum.userservice.dto.*;
 import com.forum.userservice.entity.User;
+import com.forum.userservice.exception.ForbiddenException;
 import com.forum.userservice.repository.UserAuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,25 +79,29 @@ public class UserService {
         return true;
     }
 
-    public ResponseEntity<UserDTO> validateUser(LoginRequestDTO request) {
+    public ResponseEntity<UserAuthDTO> validateUser(LoginRequestDTO request) {
         Optional<User> userOpt = userAuthRepository.findByEmail(request.getEmail());
 
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
+        if (userOpt.get().isBanned()) {
+            throw new ForbiddenException("Your account has been banned.");
+        }
+
         User user = userOpt.get();
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            throw new RuntimeException("Invalid password.");
         }
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(user.getUserId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setType(user.getType());
+        UserAuthDTO userAuthDTO = new UserAuthDTO();
+        userAuthDTO.setUserId(user.getUserId());
+        userAuthDTO.setEmail(user.getEmail());
+        userAuthDTO.setType(user.getType());
 
-        return ResponseEntity.ok(userDTO);
+        return ResponseEntity.ok(userAuthDTO);
     }
 
     public void updateProfile(UpdateProfileRequestDTO dto) {
