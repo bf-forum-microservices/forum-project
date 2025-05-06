@@ -1,10 +1,12 @@
-package com.example.postreplyservice.Controller;
+package com.example.postreplyservice.Coltroller;
 
 import com.example.postreplyservice.Entity.Post;
 import com.example.postreplyservice.Entity.PostReply;
 import com.example.postreplyservice.Entity.SubReply;
 import com.example.postreplyservice.Repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -143,4 +145,122 @@ public class PostReplyController {
         post.setIsArchived(false);
         return postRepository.save(post);
     }
+
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<String> softDeletePost(@PathVariable String id) {
+        Optional<Post> postOptional = postRepository.findById(id);
+
+        if (postOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found.");
+        }
+
+        Post post = postOptional.get();
+        if (Boolean.TRUE.equals(post.getIsArchived())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post already deleted.");
+        }
+
+        post.setIsArchived(true);
+        postRepository.save(post);
+        return ResponseEntity.ok("Post soft-deleted.");
+    }
+
+
+    @DeleteMapping("/posts/replies/{replyId}")
+    public ResponseEntity<String> softDeleteReply(@PathVariable String replyId) {
+        for (Post post : postRepository.findAll()) {
+            List<PostReply> replies = post.getPostReplies();
+            if (replies == null) continue;
+
+            for (PostReply reply : replies) {
+                if (reply.getReplyId().equals(replyId)) {
+                    if (Boolean.FALSE.equals(reply.getIsActive())) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Reply already deleted.");
+                    }
+                    reply.setIsActive(false);
+                    postRepository.save(post);
+                    return ResponseEntity.ok("Reply soft-deleted.");
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reply not found.");
+    }
+
+    // ✅ 软删除子回复（设置 isActive = false）
+    @DeleteMapping("/posts/replies/sub-replies/{subReplyId}")
+    public ResponseEntity<String> softDeleteSubReply(@PathVariable String subReplyId) {
+        for (Post post : postRepository.findAll()) {
+            List<PostReply> replies = post.getPostReplies();
+            if (replies == null) continue;
+
+            for (PostReply reply : replies) {
+                List<SubReply> subReplies = reply.getSubReplies();
+                if (subReplies == null) continue;
+
+                for (SubReply subReply : subReplies) {
+                    if (subReply.getSubReplyId().equals(subReplyId)) {
+                        if (Boolean.FALSE.equals(subReply.getIsActive())) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body("Sub-reply already deleted.");
+                        }
+                        subReply.setIsActive(false);
+                        postRepository.save(post);
+                        return ResponseEntity.ok("Sub-reply soft-deleted.");
+                    }
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sub-reply not found.");
+    }
+
+    @PatchMapping("/posts/{id}")
+    public ResponseEntity<String> updatePost(@PathVariable String id, @RequestBody Post updatedData) {
+        Optional<Post> postOptional = postRepository.findById(id);
+
+        if (postOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found with ID: " + id);
+        }
+
+        Post existingPost = postOptional.get();
+
+        // ✅ 只更新非空字段（部分更新）
+        if (updatedData.getTitle() != null) {
+            existingPost.setTitle(updatedData.getTitle());
+        }
+
+        if (updatedData.getContent() != null) {
+            existingPost.setContent(updatedData.getContent());
+        }
+
+        if (updatedData.getImages() != null) {
+            existingPost.setImages(updatedData.getImages());
+        }
+
+        if (updatedData.getAttachments() != null) {
+            existingPost.setAttachments(updatedData.getAttachments());
+        }
+
+        if (updatedData.getStatus() != null) {
+            String newStatus = updatedData.getStatus().toUpperCase();
+            String currentStatus = existingPost.getStatus();
+
+            // 只允许 DRAFT → PUBLISHED
+            if ("DRAFT".equals(currentStatus) && "PUBLISHED".equals(newStatus)) {
+                existingPost.setStatus("PUBLISHED");
+            } else if (newStatus.equals(currentStatus)) {
+                // 忽略不变的状态
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Status can only be changed from DRAFT to PUBLISHED.");
+            }
+        }
+
+        // ✅ 系统更新最后修改时间
+        existingPost.setDateModified(new Date());
+
+        postRepository.save(existingPost);
+
+        return ResponseEntity.ok("Post updated successfully.");
+    }
+
 }
