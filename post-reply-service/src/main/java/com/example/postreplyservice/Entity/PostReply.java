@@ -1,6 +1,8 @@
 package com.example.postreplyservice.Entity;
 
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -12,5 +14,5 @@ public class PostReply {
     private String comment;
     private Boolean isActive;
     private Date dateCreated;
-    private List<SubReply> subReplies;
+    private List<SubReply> subReplies = new ArrayList<>();
 }

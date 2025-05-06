@@ -1,10 +1,11 @@
 package com.example.postreplyservice.Controller;
 
 import com.example.postreplyservice.Entity.Post;
+import com.example.postreplyservice.Entity.PostReply;
+import com.example.postreplyservice.Entity.SubReply;
 import com.example.postreplyservice.Repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.example.postreplyservice.Entity.PostReply;
 
 import java.util.Date;
 import java.util.List;
@@ -68,6 +69,39 @@ public class PostReplyController {
         throw new RuntimeException("Post not found");
     }
 
+    // ✅ 添加子回复（只支持一层）
+    @PostMapping("/replies/{id}/sub-replies")
+    public Post addSubReply(@PathVariable String id, @RequestBody SubReply subReply) {
+        for (Post post : postRepository.findAll()) {
+            for (PostReply reply : post.getPostReplies()) {
+                if (reply.getReplyId().equals(id)) {
+                    subReply.setDateCreated(new Date());
+                    reply.getSubReplies().add(subReply);
+                    return postRepository.save(post);
+                }
+            }
+        }
+        throw new RuntimeException("Reply not found");
+    }
+
+
+    // ✅ 获取某用户草稿或已发布帖子（通过参数 status 控制）
+    @GetMapping("/posts/user/{userId}")
+    public List<Post> getUserPostsByStatus(@PathVariable Long userId, @RequestParam String status) {
+        return postRepository.findByUserIdAndStatus(userId, status.toUpperCase());
+    }
+
+    // ✅ 获取某用户按回复数前 3 的帖子
+    @GetMapping("/posts/top/{userId}")
+    public List<Post> getTop3PostsByReplyCount(@PathVariable Long userId) {
+        return postRepository.findByUserId(userId).stream()
+                .filter(post -> post.getPostReplies() != null)
+                .sorted((p1, p2) -> Integer.compare(
+                        p2.getPostReplies().size(), p1.getPostReplies().size()))
+                .limit(3)
+                .toList();
+    }
+
     // Admin 获取所有帖子
     @GetMapping("/admin/userAllposts")
     public List<Post> getAllPostsForAdmin() {
@@ -96,7 +130,7 @@ public class PostReplyController {
         return postRepository.findByStatus("BANNED");
     }
 
-    // Admin 获取所有被删除的帖子（假设 isArchived=true 表示删除）
+    // Admin 获取所有被删除的帖子
     @GetMapping("/admin/posts/deleted")
     public List<Post> getDeletedPosts() {
         return postRepository.findByIsArchivedTrue();
