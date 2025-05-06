@@ -8,8 +8,7 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/auth/**
-#          filters:
-#            - StripPrefix=1
+
         - id: user-service
           uri: lb://user-service
           predicates:
@@ -20,6 +19,10 @@ spring:
           predicates:
             - Path=/postandreply/**
 
+        - id: message-service
+          uri: lb://message-service
+          predicates:
+            - Path=/admin/messages/**
       globalcors:
         corsConfigurations:
           '[/**]':

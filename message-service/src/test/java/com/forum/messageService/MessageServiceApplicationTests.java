@@ -1,10 +1,10 @@
-package com.forum.userservice;
+package com.forum.messageService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UserServiceApplicationTests {
+class MessageServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,12 +1,11 @@
 spring:
   application:
-    name: user-service
-  config:
-    import: configserver:http://localhost:8888
+    name: message-service
   logging:
     level:
       org.springframework.security: DEBUG
       org.springframework.web: DEBUG
       org.springframework.boot.autoconfigure.security: DEBUG
 
-
+  config:
+    import: configserver:http://localhost:8888
