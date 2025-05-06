@@ -37,5 +37,6 @@ public class User {
     private String verificationCode;
 
     // TODO
-    //private String profileImageURL;
+//    @Column(name = "profile_image_url")
+//    private String profileImageURL;
 }
