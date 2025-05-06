@@ -36,7 +36,9 @@ public class User {
 
     private String verificationCode;
 
-    // TODO
-//    @Column(name = "profile_image_url")
-//    private String profileImageURL;
+    @Column(name = "profile_image_url")
+    private String profileImageURL;
+
+    @Column(name = "pending_email")
+    private String pendingEmail;
 }
