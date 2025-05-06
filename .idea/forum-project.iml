@@ -20,5 +20,11 @@
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-config:5.7.11" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.31" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-web:5.7.11" level="project" />
+    <orderEntry type="library" name="Maven: org.hibernate:hibernate-core:5.3.14.Final" level="project" />
+    <orderEntry type="library" name="Maven: jakarta.persistence:jakarta.persistence-api:2.2.3" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-orm:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:5.3.31" level="project" />
   </component>
 </module>

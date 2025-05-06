@@ -1,16 +1,14 @@
 spring:
   application:
     name: message-service
-  main:
-    web-application-type: servlet
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
       - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
-  #      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-  #      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
   datasource:
-    url: jdbc:mysql://db-forum.cbo484u0k6u3.us-east-2.rds.amazonaws.com
+    url: jdbc:mysql://db-forum.cbo484u0k6u3.us-east-2.rds.amazonaws.com/message_db
     username: admin
     password: Admin123!
     driver-class-name: com.mysql.cj.jdbc.Driver
