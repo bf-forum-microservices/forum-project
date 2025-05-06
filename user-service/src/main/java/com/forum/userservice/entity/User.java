@@ -41,4 +41,6 @@ public class User {
 
     @Column(name = "pending_email")
     private String pendingEmail;
+
+    private boolean banned = false;
 }
