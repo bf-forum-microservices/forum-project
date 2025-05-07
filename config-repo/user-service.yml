@@ -20,6 +20,12 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 jwt:
   secret: YourSuperSecretKey12345678901234567890
 
@@ -35,3 +41,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
+queue:
+  name: email-queue
+  exchange: email-exchange
+  routing-key: email-routing-key
