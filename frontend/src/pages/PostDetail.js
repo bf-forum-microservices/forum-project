@@ -1,239 +1,164 @@
-// import React, { useEffect, useState } from 'react';
-// import { useParams } from 'react-router-dom';
-//
-// const PostDetail = () => {
-//     const { id } = useParams();
-//     const [post, setPost] = useState(null);
-//     const [replies, setReplies] = useState([]);
-//     const [replyContent, setReplyContent] = useState('');
-//     const [subReplyContent, setSubReplyContent] = useState({});
-//     const [error, setError] = useState('');
-//     const { id: postId } = useParams();
-//
-//     useEffect(() => {
-//         fetch(`http://localhost:8080/postandreply/singlePosts/{id}`)
-//             .then(res => res.json())
-//             .then(data => {
-//                 setPost(data);
-//                 setReplies(data.replies || []);
-//             })
-//             .catch(err => {
-//                 console.error('Failed to fetch post:', err);
-//                 setError('Failed to load post.');
-//             });
-//     }, [id]);
-//
-//     const handleReply = async () => {
-//         if (!replyContent.trim()) return;
-//
-//         try {
-//             const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({
-//                     content: replyContent,
-//                     userId: localStorage.getItem('userId'), // if required
-//                 }),
-//             });
-//
-//             if (!response.ok) throw new Error('Failed to post reply');
-//
-//             const createdReply = await response.json();
-//             setReplies(prev => [...prev, createdReply]); // update UI with new reply
-//             setReplyContent('');
-//         } catch (err) {
-//             console.error('Reply failed:', err);
-//         }
-//     };
-//
-//
-//     const handleSubReply = async (parentReplyId, subReplyContent) => {
-//         if (!subReplyContent.trim()) return;
-//
-//         try {
-//             const response = await fetch(`http://localhost:8080/postandreply/replies/${parentReplyId}/sub-replies`, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({
-//                     content: subReplyContent,
-//                     userId: localStorage.getItem('userId'), // if required
-//                 }),
-//             });
-//
-//             if (!response.ok) throw new Error('Failed to post sub-reply');
-//
-//             const createdSubReply = await response.json();
-//
-//             // Update the subReplies in the UI
-//             setReplies(prev =>
-//                 prev.map(reply =>
-//                     reply.id === parentReplyId
-//                         ? { ...reply, subReplies: [...(reply.subReplies || []), createdSubReply] }
-//                         : reply
-//                 )
-//             );
-//         } catch (err) {
-//             console.error('Sub-reply failed:', err);
-//         }
-//     };
-//
-//
-//     if (error) return <p>{error}</p>;
-//     if (!post) return <p>Loading...</p>;
-//
-//     return (
-//         <div className="post-detail">
-//             <h2>{post.title}</h2>
-//             <p>{post.description}</p>
-//             <p>
-//                 By: {post.creator?.name}{' '}
-//                 <img src={post.creator?.profileImage} alt="avatar" style={{ width: 40, borderRadius: '50%' }} />
-//             </p>
-//             <p>Created: {new Date(post.createdAt).toLocaleString()}</p>
-//             {post.updatedAt && <p>Updated: {new Date(post.updatedAt).toLocaleString()}</p>}
-//
-//             {post.attachments?.length > 0 && (
-//                 <div>
-//                     <h4>Attachments:</h4>
-//                     <ul>
-//                         {post.attachments.map((file, i) => (
-//                             <li key={i}><a href={file.url} target="_blank" rel="noreferrer">{file.name}</a></li>
-//                         ))}
-//                     </ul>
-//                 </div>
-//             )}
-//
-//             <hr />
-//             <h3>Replies</h3>
-//             <ul>
-//                 {replies.map(reply => (
-//                     <li key={reply.id}>
-//                         <img src={reply.user.profileImage} alt="avatar" width={30} style={{ borderRadius: '50%' }} />
-//                         <strong>{reply.user.name}</strong>: {reply.content}
-//                         <ul>
-//                             {reply.subReplies?.map(sub => (
-//                                 <li key={sub.id}>
-//                                     <img src={sub.user.profileImage} alt="avatar" width={25} style={{ borderRadius: '50%' }} />
-//                                     <strong>{sub.user.name}</strong>: {sub.content}
-//                                 </li>
-//                             ))}
-//                         </ul>
-//
-//                         <input
-//                             placeholder="Reply to this reply..."
-//                             value={subReplyContent[reply.id] || ''}
-//                             onChange={(e) =>
-//                                 setSubReplyContent({ ...subReplyContent, [reply.id]: e.target.value })
-//                             }
-//                         />
-//                         <button onClick={() => handleSubReply(reply.id)}>Send</button>
-//                     </li>
-//                 ))}
-//             </ul>
-//
-//             <hr />
-//             <h4>Write a Reply:</h4>
-//             <textarea
-//                 value={replyContent}
-//                 onChange={(e) => setReplyContent(e.target.value)}
-//                 placeholder="Write your reply here..."
-//             />
-//             <br />
-//             <button onClick={handleReply}>Reply</button>
-//         </div>
-//     );
-// };
-//
-// export default PostDetail;
-
-
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const PostDetail = () => {
-    const post = {
-        title: 'How to Build a Microservice',
-        description: 'This post explains how to set up a microservice using Spring Boot and React.',
-        user: {
-            name: 'Jane Doe',
-            profileImageUrl: 'https://via.placeholder.com/100'
-        },
-        createdAt: '2024-12-01T10:00:00Z',
-        updatedAt: '2025-01-15T12:00:00Z',
-        attachment: 'project-architecture.pdf'
+    const { id: postId } = useParams();
+    const [post, setPost] = useState(null);
+    const [replies, setReplies] = useState([]);
+    const [replyContent, setReplyContent] = useState('');
+    const [subReplyContent, setSubReplyContent] = useState({});
+    const [error, setError] = useState('');
+
+    const getAuthHeaders = () => ({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    });
+
+    useEffect(() => {
+        fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        })
+            .then(res => {
+                console.log("Status:", res.status);
+                if (!res.ok) throw new Error("Post not found");
+                return res.json();
+            })
+            .then(data => {
+                console.log("Post loaded:", data);
+                setPost(data);
+                setReplies(data.postReplies || []);
+            })
+            .catch(err => {
+                console.error('Failed to fetch post:', err);
+                setError('Failed to load post.');
+            });
+    }, [postId]);
+
+    const handleReply = async () => {
+        if (!replyContent.trim()) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    comment: replyContent,  // ✅ 注意字段名要和后端一致
+                    userId: localStorage.getItem('userId') || 999,
+                }),
+            });
+
+            if (!response.ok) throw new Error('Failed to post reply');
+
+            const updatedPost = await response.json(); // ✅ 接收整个 Post
+            setReplies(updatedPost.postReplies);       // ✅ 覆盖 replies
+            setReplyContent('');
+        } catch (err) {
+            console.error('Reply failed:', err);
+        }
     };
 
-    const replies = [
-        {
-            id: 1,
-            user: {
-                name: 'John Smith',
-                profileImageUrl: 'https://via.placeholder.com/80'
-            },
-            message: 'Great post! Thanks for sharing.',
-            subReplies: [
-                {
-                    id: 11,
-                    user: {
-                        name: 'Alice',
-                        profileImageUrl: 'https://via.placeholder.com/60'
-                    },
-                    message: 'Agreed. Super helpful!'
-                }
-            ]
-        },
-        {
-            id: 2,
-            user: {
-                name: 'Bob Lee',
-                profileImageUrl: 'https://via.placeholder.com/80'
-            },
-            message: 'How do you manage environment configs?'
+    const handleSubReply = async (replyId) => {
+        const content = subReplyContent[replyId];
+        if (!content?.trim()) return;
+
+        try {
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    comment: content,
+                    userId: localStorage.getItem('userId') || 888,
+                }),
+            });
+
+            if (!response.ok) throw new Error('Failed to post sub-reply');
+
+            const updatedPost = await response.json(); // 👈 后端返回的是整个 Post
+
+            const updatedReplies = updatedPost.postReplies;
+
+            setReplies(updatedReplies);
+
+            setSubReplyContent(prev => ({ ...prev, [replyId]: '' }));
+        } catch (err) {
+            console.error('Sub-reply failed:', err);
         }
-    ];
+    };
+
+
+    if (error) return <p>{error}</p>;
+    if (!post) return <p>Loading...</p>;
 
     return (
-        <div className="post-detail">
+        <div className="post-detail" style={{ padding: "20px" }}>
             <h2>{post.title}</h2>
-            <div className="post-meta">
-                <img src={post.user.profileImageUrl} alt="User" width={60} />
-                <p><strong>{post.user.name}</strong></p>
-                <p>Created: {new Date(post.createdAt).toLocaleDateString()}</p>
-                <p>Updated: {new Date(post.updatedAt).toLocaleDateString()}</p>
-            </div>
-            <p>{post.description}</p>
-            {post.attachment && (
-                <p>Attachment: <a href={`/${post.attachment}`} download>{post.attachment}</a></p>
+            <p>{post.content}</p>
+            <p><strong>User ID:</strong> {post.userId}</p>
+            <p>Created: {new Date(post.dateCreated).toLocaleString()}</p>
+            <p>Updated: {new Date(post.dateModified).toLocaleString()}</p>
+
+            {post.images?.length > 0 && (
+                <div>
+                    <h4>Images:</h4>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        {post.images.map((img, idx) => (
+                            <img key={idx} src={`/${img}`} alt={img} width={120} />
+                        ))}
+                    </div>
+                </div>
             )}
 
+            {post.attachments?.length > 0 && (
+                <div>
+                    <h4>Attachments:</h4>
+                    <ul>
+                        {post.attachments.map((file, idx) => (
+                            <li key={idx}><a href={`/${file}`} download>{file}</a></li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            <hr />
             <h3>Replies</h3>
             <ul>
                 {replies.map(reply => (
-                    <li key={reply.id}>
-                        <img src={reply.user.profileImageUrl} alt="Replier" width={40} />
-                        <strong>{reply.user.name}</strong>: {reply.message}
-                        {reply.subReplies && (
-                            <ul>
-                                {reply.subReplies.map(sub => (
-                                    <li key={sub.id}>
-                                        <img src={sub.user.profileImageUrl} alt="Sub-replier" width={30} />
-                                        <strong>{sub.user.name}</strong>: {sub.message}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                    <li key={reply.replyId}>
+                        <p><strong>User {reply.userId}</strong>: {reply.comment}</p>
+                        <ul>
+                            {reply.subReplies?.map(sub => (
+                                <li key={sub.subReplyId}>
+                                    <strong>User {sub.userId}</strong>: {sub.comment}
+                                </li>
+                            ))}
+                        </ul>
+                        <input
+                            value={subReplyContent[reply.replyId] || ''}
+                            onChange={(e) =>
+                                setSubReplyContent({ ...subReplyContent, [reply.replyId]: e.target.value })
+                            }
+                            placeholder="Reply to this reply..."
+                        />
+                        <button onClick={() => handleSubReply(reply.replyId)}>Send Sub-reply</button>
                     </li>
                 ))}
             </ul>
 
-            <h4>Reply to this post</h4>
-            <textarea placeholder="Write your reply..."></textarea>
+            <hr />
+            <h4>Write a Reply:</h4>
+            <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Write your reply..."
+            />
             <br />
-            <button>Submit Reply</button>
+            <button onClick={handleReply}>Reply</button>
         </div>
     );
 };
