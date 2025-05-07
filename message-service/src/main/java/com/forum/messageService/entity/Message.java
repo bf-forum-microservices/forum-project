@@ -24,7 +24,7 @@ public class Message {
     @Column
     private Integer messageId;
 
-    @Column(nullable = false)
+    @Column
     private Integer userId;
 
     @Column(nullable = false, length = 100)
