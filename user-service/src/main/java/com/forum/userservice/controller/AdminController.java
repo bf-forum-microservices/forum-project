@@ -72,7 +72,6 @@ public class AdminController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long id) {
         String token = authHeader.substring(7); // Remove "Bearer "
-        System.out.println("wg" + token);
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret.getBytes())
                 .parseClaimsJws(token)

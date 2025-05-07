@@ -1,6 +1,7 @@
 package com.forum.userservice.service;
 
 import com.forum.userservice.Enum.UserRole;
+import com.forum.userservice.RabbitMessagePublisher;
 import com.forum.userservice.dto.*;
 import com.forum.userservice.entity.User;
 import com.forum.userservice.exception.ForbiddenException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -27,6 +29,9 @@ public class UserService {
 
     @Autowired(required = false)
     private EmailPublisher emailPublisher;
+
+    @Autowired
+    private RabbitMessagePublisher rabbitMessagePublisher;
 
 //    public User createNewUser() {
 //        User newUser = new User();
@@ -53,12 +58,11 @@ public class UserService {
 //            newUser.setProfileImageURL("https://your-default-image-url.com/default.jpg");
 //        }
 
-        // TODO: Publish email verification message to RabbitMQ
-        if (emailPublisher != null) {
-            System.out.println("EmailPublisher not available — skipping email verification step.");
-        } else {
-            emailPublisher.sendVerificationEmail(newUser.getEmail(), "dummy-token");
-        }
+        System.out.println("About to send email");
+
+        emailPublisher.sendVerificationEmail(newUser.getEmail(), newUser.getVerificationCode());
+
+        System.out.println("Send email");
 
         userAuthRepository.save(newUser);
 
