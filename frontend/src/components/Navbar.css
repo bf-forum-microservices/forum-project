@@ -43,4 +43,24 @@
     display: block;
     margin: 0;
 }
-  
+
+.nav-button {
+    font-family: "Montserrat", sans-serif;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 1rem;
+    font-weight: 500;
+    transition: opacity 0.3s;
+    text-decoration: none;
+    padding: 0;
+    height: auto;
+    display: inline;
+    line-height: normal;
+    vertical-align: middle;
+}
+
+.nav-button:hover {
+    opacity: 0.8;
+}

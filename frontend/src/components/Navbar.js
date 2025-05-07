@@ -1,8 +1,17 @@
-import { Link } from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
+import { isAuthenticated } from "../auth";
 import logo from '../images/logo.svg'
 import './Navbar.css'
 
 const Navbar = () => {
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/login");
+    };
+
     return (
         <div className='full-navbar'>
             <ul className='navbar'>
@@ -10,7 +19,7 @@ const Navbar = () => {
                     <img src={logo} alt="Logo" className="logo" />
                 </Link>
                 <div className='nav-elements'>
-                    <Link to="/login">Login</Link>
+                    {!isAuthenticated() ? <Link to="/login">Login</Link> : <button onClick={handleLogout} className="nav-button">Logout</button> }
                     <Link to="/register">Register</Link> {/* change later once authorization happens*/}
                     <Link to="/home">Home Page</Link> {/* change later once authorization happens*/}
                     {/*<Link to="/admin/home">Admin Home</Link>*/}
