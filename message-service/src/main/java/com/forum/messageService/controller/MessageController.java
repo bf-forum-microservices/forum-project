@@ -54,10 +54,8 @@ public class MessageController {
     public ResponseEntity<String> changeStatus(
             @PathVariable("messageId") Integer messageId,
             @RequestParam("status") String statusString) {
-        statusString = statusString.toUpperCase();
-        if (statusString.equals("PROCESSED") || statusString.equals("RESOLVED")) {
-            messageService.changeMessageStatus(messageId, Status.valueOf(statusString));
-        }
+
+        messageService.changeMessageStatus(messageId, statusString);
 
         return ResponseEntity.ok("Message status updated to: " + statusString);
     }
