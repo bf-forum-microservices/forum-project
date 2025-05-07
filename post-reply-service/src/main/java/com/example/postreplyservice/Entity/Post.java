@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ public class Post {
     private String postId = UUID.randomUUID().toString();
 
     private Long userId;
+    private String userName;
     private String title;
     private String content;
     private Boolean isArchived;
@@ -23,5 +25,5 @@ public class Post {
     private Date dateModified;
     private List<String> images;
     private List<String> attachments;
-    private List<PostReply> postReplies;
+    private List<PostReply> postReplies = new ArrayList<>();;
 }

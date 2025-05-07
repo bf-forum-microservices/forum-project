@@ -8,24 +8,45 @@ const PostDetail = () => {
     const [replyContent, setReplyContent] = useState('');
     const [subReplyContent, setSubReplyContent] = useState({});
     const [error, setError] = useState('');
+    const [userInfo, setUserInfo] = useState(null);
 
     const getAuthHeaders = () => ({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
     });
 
+    // 🔹 获取当前用户信息
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/users/info', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setUserInfo(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch user info:', err);
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
+
+    // 🔹 获取帖子详情和回复
     useEffect(() => {
         fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
             method: 'GET',
             headers: getAuthHeaders(),
         })
             .then(res => {
-                console.log("Status:", res.status);
                 if (!res.ok) throw new Error("Post not found");
                 return res.json();
             })
             .then(data => {
-                console.log("Post loaded:", data);
                 setPost(data);
                 setReplies(data.postReplies || []);
             })
@@ -35,62 +56,54 @@ const PostDetail = () => {
             });
     }, [postId]);
 
+    // 🔹 提交一级回复
     const handleReply = async () => {
-        if (!replyContent.trim()) return;
+        if (!replyContent.trim() || !userInfo) return;
 
         try {
             const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
-                    comment: replyContent,  // ✅ 注意字段名要和后端一致
-                    userId: localStorage.getItem('userId') || 999,
+                    comment: replyContent,
+                    userId: userInfo.userId,
+                    userName: `${userInfo.firstName} ${userInfo.lastName}`,
                 }),
             });
 
             if (!response.ok) throw new Error('Failed to post reply');
-
-            const updatedPost = await response.json(); // ✅ 接收整个 Post
-            setReplies(updatedPost.postReplies);       // ✅ 覆盖 replies
+            const updatedPost = await response.json();
+            setReplies(updatedPost.postReplies);
             setReplyContent('');
         } catch (err) {
             console.error('Reply failed:', err);
         }
     };
 
+    // 🔹 提交子回复
     const handleSubReply = async (replyId) => {
         const content = subReplyContent[replyId];
-        if (!content?.trim()) return;
+        if (!content?.trim() || !userInfo) return;
 
         try {
-            const token = localStorage.getItem('token');
-
             const response = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                     comment: content,
-                    userId: localStorage.getItem('userId') || 888,
+                    userId: userInfo.userId,
+                    userName: `${userInfo.firstName} ${userInfo.lastName}`,
                 }),
             });
 
             if (!response.ok) throw new Error('Failed to post sub-reply');
-
-            const updatedPost = await response.json(); // 👈 后端返回的是整个 Post
-
-            const updatedReplies = updatedPost.postReplies;
-
-            setReplies(updatedReplies);
-
+            const updatedPost = await response.json();
+            setReplies(updatedPost.postReplies);
             setSubReplyContent(prev => ({ ...prev, [replyId]: '' }));
         } catch (err) {
             console.error('Sub-reply failed:', err);
         }
     };
-
 
     if (error) return <p>{error}</p>;
     if (!post) return <p>Loading...</p>;
@@ -99,7 +112,7 @@ const PostDetail = () => {
         <div className="post-detail" style={{ padding: "20px" }}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
-            <p><strong>User ID:</strong> {post.userId}</p>
+            <p><strong>By:</strong> {post.userName || `User ${post.userId}`}</p>
             <p>Created: {new Date(post.dateCreated).toLocaleString()}</p>
             <p>Updated: {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -130,11 +143,11 @@ const PostDetail = () => {
             <ul>
                 {replies.map(reply => (
                     <li key={reply.replyId}>
-                        <p><strong>User {reply.userId}</strong>: {reply.comment}</p>
+                        <p><strong>{reply.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
                         <ul>
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
-                                    <strong>User {sub.userId}</strong>: {sub.comment}
+                                    <strong>{sub.userName || `User ${sub.userId}`}</strong>: {sub.comment}
                                 </li>
                             ))}
                         </ul>

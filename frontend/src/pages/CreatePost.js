@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
@@ -8,8 +8,34 @@ const CreatePost = () => {
         status: 'PUBLISHED'
     });
     const [errors, setErrors] = useState({});
+    const [userInfo, setUserInfo] = useState(null);
     const navigate = useNavigate();
 
+    // 🔹 获取当前用户信息
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const res = await fetch('http://localhost:8080/users/info', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setUserInfo(data); // 包含 userId 和 firstName/lastName
+                }
+            } catch (err) {
+                console.error('Failed to load user info:', err);
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
+
+    // 🔹 表单验证
     const validate = () => {
         const newErrors = {};
         if (!form.title) newErrors.title = 'Title is required';
@@ -18,18 +44,25 @@ const CreatePost = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    // 🔹 字段变化处理
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm(prev => ({ ...prev, [name]: value }));
     };
 
+    // 🔹 提交帖子
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
 
-        const userId = parseInt(localStorage.getItem('userId'));
+        if (!userInfo) {
+            alert('User info not loaded.');
+            return;
+        }
+
         const payload = {
-            userId,
+            userId: userInfo.userId,
+            userName: `${userInfo.firstName} ${userInfo.lastName}`,
             title: form.title,
             content: form.content,
             status: form.status,
@@ -45,12 +78,13 @@ const CreatePost = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw new Error('Failed to create post');
+
             alert('Post submitted successfully!');
             navigate('/home');
         } catch (err) {
@@ -93,14 +127,12 @@ const CreatePost = () => {
                         value={form.content}
                         onChange={handleChange}
                         required
-                    ></textarea>
+                    />
                     {errors.content && <div className="invalid-feedback">{errors.content}</div>}
                 </div>
 
                 <div className="mb-3">
-                    <label className="form-label">
-                        Status<span className="text-danger">*</span>
-                    </label>
+                    <label className="form-label">Status</label>
                     <select
                         name="status"
                         className="form-control"
@@ -113,12 +145,8 @@ const CreatePost = () => {
                 </div>
 
                 <div className="d-flex justify-content-between">
-                    <button type="submit" className="btn btn-primary w-50 me-2">
-                        Submit
-                    </button>
-                    <button type="button" className="btn btn-secondary w-50 ms-2" onClick={handleCancel}>
-                        Cancel
-                    </button>
+                    <button type="submit" className="btn btn-primary w-50 me-2">Submit</button>
+                    <button type="button" className="btn btn-secondary w-50 ms-2" onClick={handleCancel}>Cancel</button>
                 </div>
             </form>
         </div>
