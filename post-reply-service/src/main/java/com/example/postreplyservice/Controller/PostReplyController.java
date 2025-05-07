@@ -30,6 +30,11 @@ public class PostReplyController {
         return postRepository.save(post);
     }
 
+    @GetMapping("/posts/published")
+    public List<Post> getAllPublishedPosts() {
+        return postRepository.findByStatus("PUBLISHED");
+    }
+
     // 创建草稿帖子
     @PostMapping("/draftPost")
     public Post createDraft(@RequestBody Post post) {
