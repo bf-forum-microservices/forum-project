@@ -58,11 +58,7 @@ public class UserService {
 //            newUser.setProfileImageURL("https://your-default-image-url.com/default.jpg");
 //        }
 
-        System.out.println("About to send email");
-
         emailPublisher.sendVerificationEmail(newUser.getEmail(), newUser.getVerificationCode());
-
-        System.out.println("Send email");
 
         userAuthRepository.save(newUser);
 

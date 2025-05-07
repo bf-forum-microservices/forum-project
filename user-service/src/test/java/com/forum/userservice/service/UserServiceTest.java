@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+        ReflectionTestUtils.setField(userService, "emailPublisher", emailPublisher);
+
         user = new User();
         user.setUserId(1L);
         user.setEmail("user@example.com");
@@ -107,25 +110,25 @@ class UserServiceTest {
         assertNull(response.getBody());
     }
 
-//    /**
-//     * Registers a new user and sends verification email
-//     */
-//    @Test
-//    void registerUser_shouldSaveUserAndSendEmail() {
-//        RegisterRequestDTO request = new RegisterRequestDTO();
-//        request.setEmail("new@example.com");
-//        request.setPassword("plain-password");
-//        request.setFirstName("New");
-//        request.setLastName("User");
-//
-//        when(userAuthRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
-//        when(passwordEncoder.encode("plain-password")).thenReturn("encoded-password");
-//
-//        userService.registerUser(request);
-//
-//        verify(userAuthRepository, times(1)).save(any(User.class));
-//        verify(emailPublisher, times(1)).sendVerificationEmail(eq("user@example.com"), anyString());
-//    }
+    /**
+     * Registers a new user and sends verification email
+     */
+    @Test
+    void registerUser_shouldSaveUserAndSendEmail() {
+        RegisterRequestDTO request = new RegisterRequestDTO();
+        request.setEmail("new@example.com");
+        request.setPassword("plain-password");
+        request.setFirstName("New");
+        request.setLastName("User");
+
+        when(userAuthRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("plain-password")).thenReturn("encoded-password");
+
+        userService.registerUser(request);
+
+        verify(userAuthRepository, times(1)).save(any(User.class));
+        verify(emailPublisher, times(1)).sendVerificationEmail(eq("new@example.com"), anyString());
+    }
 
     /**
      * Login wrong passwords
