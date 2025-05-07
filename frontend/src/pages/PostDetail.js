@@ -16,14 +16,11 @@ const PostDetail = () => {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
     });
 
-    // 获取当前登录用户
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
                 const res = await fetch('http://localhost:8080/users/info', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
+                    headers: getAuthHeaders(),
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -33,11 +30,9 @@ const PostDetail = () => {
                 console.error('Failed to fetch user info:', err);
             }
         };
-
         fetchUserInfo();
     }, []);
 
-    // 获取帖子和回复
     useEffect(() => {
         fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
             method: 'GET',
@@ -57,7 +52,6 @@ const PostDetail = () => {
             });
     }, [postId]);
 
-    // 拉取头像和用户名称（缓存）
     const fetchUserInfoById = async (userId) => {
         if (avatarMap[userId]) return;
 
@@ -80,7 +74,6 @@ const PostDetail = () => {
         }
     };
 
-    // 加载所有相关 userId 的头像（帖子作者 + 回复者 + 子回复者）
     useEffect(() => {
         if (post) fetchUserInfoById(post.userId);
         replies.forEach(reply => {
@@ -90,7 +83,11 @@ const PostDetail = () => {
     }, [post, replies]);
 
     const handleReply = async () => {
-        if (!replyContent.trim() || !userInfo) return;
+        if (!replyContent.trim()) return;
+        if (!userInfo || !userInfo.active) {
+            alert("Your account is inactive. You cannot reply.");
+            return;
+        }
 
         try {
             const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
@@ -114,7 +111,11 @@ const PostDetail = () => {
 
     const handleSubReply = async (replyId) => {
         const content = subReplyContent[replyId];
-        if (!content?.trim() || !userInfo) return;
+        if (!content?.trim()) return;
+        if (!userInfo || !userInfo.active) {
+            alert("Your account is inactive. You cannot reply.");
+            return;
+        }
 
         try {
             const response = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
@@ -226,20 +227,26 @@ const PostDetail = () => {
                             }
                             placeholder="Reply to this reply..."
                         />
-                        <button onClick={() => handleSubReply(reply.replyId)}>Send Sub-reply</button>
+                        <button onClick={() => handleSubReply(reply.replyId)} disabled={!userInfo?.active}>
+                            Send Sub-reply
+                        </button>
                     </li>
                 ))}
             </ul>
 
             <hr />
             <h4>Write a Reply:</h4>
+            {!userInfo?.active && (
+                <p style={{ color: 'red' }}>You need to verify your email first. </p>
+            )}
             <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder="Write your reply..."
+                disabled={!userInfo?.active}
             />
             <br />
-            <button onClick={handleReply}>Reply</button>
+            <button onClick={handleReply} disabled={!userInfo?.active}>Reply</button>
         </div>
     );
 };

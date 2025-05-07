@@ -7,11 +7,34 @@ const UserHome = () => {
     const [tab, setTab] = useState('published');
     const [isAdmin, setIsAdmin] = useState(false);
     const [avatarMap, setAvatarMap] = useState({});
+    const [userInfo, setUserInfo] = useState(null);
+    const [isUserLoaded, setIsUserLoaded] = useState(false);
     const navigate = useNavigate();
 
+    // 获取当前用户角色和信息
     useEffect(() => {
         const role = localStorage.getItem('role');
         setIsAdmin(role === 'ADMIN');
+
+        const fetchCurrentUser = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/users/info', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setUserInfo(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch current user info:', err);
+            } finally {
+                setIsUserLoaded(true);
+            }
+        };
+
+        fetchCurrentUser();
     }, []);
 
     useEffect(() => {
@@ -109,8 +132,20 @@ const UserHome = () => {
                 </button>
                 {!isAdmin && (
                     <>
-                        <button onClick={() => navigate('/create-post')}>Create New Post</button>
+                        <button
+                            onClick={() => {
+                                if (isUserLoaded && userInfo?.active) {
+                                    navigate('/create-post');
+                                } else if (isUserLoaded) {
+                                    alert('Please verify your email first.');
+                                }
+                            }}
+                        >
+                            Create New Post
+                        </button>
+
                         <button onClick={() => navigate('/profile')}>View My Profile</button>
+
                     </>
                 )}
             </div>
