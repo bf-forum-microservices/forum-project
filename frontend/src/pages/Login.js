@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -29,6 +30,11 @@ const Login = () => {
             console.log('Login successful:', data);
 
             localStorage.setItem('token', data.token);
+            const decoded = jwtDecode(data.token);
+            console.log("🔍 Decoded token:", decoded);
+
+            const role = decoded?.role; // or whatever the key is in your JWT
+            localStorage.setItem('role', role);
             navigate('/home');
 
         } catch (err) {
