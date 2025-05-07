@@ -10,9 +10,9 @@ spring:
 
   mail:
     host: sandbox.smtp.mailtrap.io
-    port: 587  # You can use 25, 465, or 2525 depending on your needs, 587 is recommended for STARTTLS
-    username: 8d9ee5c27290dc
-    password: ****8eab  # Make sure to use your correct password here
+    port: 587
+    username: 383fc5589c9b2b
+    password: 592ce283aa55c4
     properties:
       mail:
         smtp:

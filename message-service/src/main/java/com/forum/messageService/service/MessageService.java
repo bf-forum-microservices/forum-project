@@ -18,13 +18,7 @@ public class MessageService {
     private MessageDao messageDao;
 
     @Autowired
-    private EmailPublisher emailPublisher;
-
-    @Value("${queue.exchange}")
-    private String exchange;
-
-    @Value("${queue.routing-key}")
-    private String routingKey;
+    private RabbitMessagePublisher rabbitMessagePublisher;
 
     @Transactional(readOnly = true)
     public List<Message> getAllMessages() {
@@ -40,12 +34,13 @@ public class MessageService {
     public void createMessage(Message message) {
         messageDao.saveMessage(message);
 
-        EmailEvent emailEvent = new EmailEvent(
-                message.getEmail(),
-                message.getSubject(),
-                message.getMessage()
-        );
-        emailPublisher.sendMessageToQueue(emailEvent);
+        EmailEvent emailEvent = EmailEvent.builder()
+                .to(message.getEmail())
+                .subject(message.getSubject())
+                .body(message.getMessage())
+                .build();
+
+        rabbitMessagePublisher.sendMessageToQueue(emailEvent);
     }
 
     @Transactional

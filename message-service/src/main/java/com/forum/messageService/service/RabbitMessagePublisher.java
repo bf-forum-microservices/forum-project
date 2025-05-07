@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailPublisher {
+public class RabbitMessagePublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public EmailPublisher(RabbitTemplate rabbitTemplate) {
+    public RabbitMessagePublisher(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
