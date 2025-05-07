@@ -7,16 +7,24 @@ spring:
       - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
   datasource:
     url: jdbc:mysql://db-forum.cbo484u0k6u3.us-east-2.rds.amazonaws.com/message_db
     username: admin
     password: Admin123!
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 jwt:
   secret: YourSuperSecretKey12345678901234567890
@@ -33,3 +41,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
+queue:
+  name: email-queue
+  exchange: email-exchange
+  routing-key: email-routing-key

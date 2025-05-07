@@ -1,10 +1,11 @@
 package com.forum.messageService.service;
 
 import com.forum.messageService.dao.MessageDao;
-import com.forum.messageService.dto.MessageRequest;
+import com.forum.messageService.dto.EmailEvent;
 import com.forum.messageService.entity.Message;
 import com.forum.messageService.entity.Message.Status;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,15 @@ public class MessageService {
 
     @Autowired
     private MessageDao messageDao;
+
+    @Autowired
+    private EmailPublisher emailPublisher;
+
+    @Value("${queue.exchange}")
+    private String exchange;
+
+    @Value("${queue.routing-key}")
+    private String routingKey;
 
     @Transactional(readOnly = true)
     public List<Message> getAllMessages() {
@@ -29,6 +39,13 @@ public class MessageService {
     @Transactional
     public void createMessage(Message message) {
         messageDao.saveMessage(message);
+
+        EmailEvent emailEvent = new EmailEvent(
+                message.getEmail(),
+                message.getSubject(),
+                message.getMessage()
+        );
+        emailPublisher.sendMessageToQueue(emailEvent);
     }
 
     @Transactional
