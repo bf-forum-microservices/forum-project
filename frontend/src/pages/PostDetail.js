@@ -15,7 +15,6 @@ const PostDetail = () => {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
     });
 
-    // 🔹 获取当前用户信息
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -36,7 +35,6 @@ const PostDetail = () => {
         fetchUserInfo();
     }, []);
 
-    // 🔹 获取帖子详情和回复
     useEffect(() => {
         fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
             method: 'GET',
@@ -56,7 +54,6 @@ const PostDetail = () => {
             });
     }, [postId]);
 
-    // 🔹 提交一级回复
     const handleReply = async () => {
         if (!replyContent.trim() || !userInfo) return;
 
@@ -68,6 +65,7 @@ const PostDetail = () => {
                     comment: replyContent,
                     userId: userInfo.userId,
                     userName: `${userInfo.firstName} ${userInfo.lastName}`,
+                    profileImageURL: userInfo.profileImageURL, // ✅ 加入头像
                 }),
             });
 
@@ -80,7 +78,6 @@ const PostDetail = () => {
         }
     };
 
-    // 🔹 提交子回复
     const handleSubReply = async (replyId) => {
         const content = subReplyContent[replyId];
         if (!content?.trim() || !userInfo) return;
@@ -93,6 +90,7 @@ const PostDetail = () => {
                     comment: content,
                     userId: userInfo.userId,
                     userName: `${userInfo.firstName} ${userInfo.lastName}`,
+                    profileImageURL: userInfo.profileImageURL, // ✅ 加入头像
                 }),
             });
 
@@ -112,7 +110,18 @@ const PostDetail = () => {
         <div className="post-detail" style={{ padding: "20px" }}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
-            <p><strong>By:</strong> {post.userName || `User ${post.userId}`}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "10px 0" }}>
+                {post.profileImageURL && (
+                    <img
+                        src={post.profileImageURL}
+                        alt="author-avatar"
+                        width={50}
+                        height={50}
+                        style={{ borderRadius: "50%" }}
+                    />
+                )}
+                <p><strong>By:</strong> {post.userName || `User ${post.userId}`}</p>
+            </div>
             <p>Created: {new Date(post.dateCreated).toLocaleString()}</p>
             <p>Updated: {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -143,14 +152,38 @@ const PostDetail = () => {
             <ul>
                 {replies.map(reply => (
                     <li key={reply.replyId}>
-                        <p><strong>{reply.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "5px" }}>
+                            {reply.profileImageURL && (
+                                <img
+                                    src={reply.profileImageURL}
+                                    alt="avatar"
+                                    width={40}
+                                    height={40}
+                                    style={{ borderRadius: "50%" }}
+                                />
+                            )}
+                            <p><strong>{reply.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
+                        </div>
+
                         <ul>
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
-                                    <strong>{sub.userName || `User ${sub.userId}`}</strong>: {sub.comment}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "3px" }}>
+                                        {sub.profileImageURL && (
+                                            <img
+                                                src={sub.profileImageURL}
+                                                alt="avatar"
+                                                width={35}
+                                                height={35}
+                                                style={{ borderRadius: "50%" }}
+                                            />
+                                        )}
+                                        <strong>{sub.userName || `User ${sub.userId}`}</strong>: {sub.comment}
+                                    </div>
                                 </li>
                             ))}
                         </ul>
+
                         <input
                             value={subReplyContent[reply.replyId] || ''}
                             onChange={(e) =>

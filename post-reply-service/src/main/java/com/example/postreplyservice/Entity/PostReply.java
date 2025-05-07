@@ -13,6 +13,7 @@ public class PostReply {
     private Long userId;
     private String userName;
     private String comment;
+    private String profileImageURL;
     private Boolean isActive;
     private Date dateCreated;
     private List<SubReply> subReplies = new ArrayList<>();

@@ -17,6 +17,7 @@ public class Post {
 
     private Long userId;
     private String userName;
+    private String profileImageURL;
     private String title;
     private String content;
     private Boolean isArchived;

@@ -63,6 +63,7 @@ const CreatePost = () => {
         const payload = {
             userId: userInfo.userId,
             userName: `${userInfo.firstName} ${userInfo.lastName}`,
+            profileImageURL: userInfo.profileImageURL,
             title: form.title,
             content: form.content,
             status: form.status,
