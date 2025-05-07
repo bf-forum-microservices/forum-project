@@ -59,12 +59,12 @@ public class MessageService {
                 -> new MessageNotFoundException(id));
 
         statusString = statusString.toUpperCase();
-        if (statusString.equals(message.getStatus().toString())) {
-            throw new InvalidStatusException(statusString, "The current status and new status are the same.");
+        if (message.getStatus().toString().equals("RESOLVED")) {
+            throw new InvalidStatusException(statusString, "The message has already been resolved");
         }
 
-        else if (message.getStatus().toString().equals("RESOLVED")) {
-            throw new InvalidStatusException(statusString, "The message has already been resolved");
+        else if (statusString.equals(message.getStatus().toString())) {
+            throw new InvalidStatusException(statusString, "The current status and new status are the same.");
         }
 
         else if (!statusString.equals("PROCESSED") && !statusString.equals("RESOLVED")) {
