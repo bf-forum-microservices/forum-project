@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class MessageDao {
@@ -26,8 +27,8 @@ public class MessageDao {
         return session.createQuery(criteria).getResultList();
     }
 
-    public Message getMessageById(int id) {
-        return getCurrentSession().get(clazz, id);
+    public Optional<Message> getMessageById(int id) {
+        return Optional.ofNullable(getCurrentSession().get(clazz, id));
     }
 
     public void saveMessage(Message message) {
