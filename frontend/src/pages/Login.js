@@ -29,12 +29,12 @@ const Login = () => {
             const data = await response.json();
             console.log('Login successful:', data);
 
-            localStorage.setItem('token', data.token);
+            sessionStorage.setItem('token', data.token);
             const decoded = jwtDecode(data.token);
             console.log("🔍 Decoded token:", decoded);
 
             const role = decoded?.role; // or whatever the key is in your JWT
-            localStorage.setItem('role', role);
+            sessionStorage.setItem('role', role);
             navigate('/home');
 
         } catch (err) {

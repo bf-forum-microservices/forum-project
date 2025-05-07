@@ -10,7 +10,7 @@ const UserHome = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const role = localStorage.getItem('role');
+        const role = sessionStorage.getItem('role');
         setIsAdmin(role === 'ADMIN');
     }, []);
 
@@ -25,7 +25,7 @@ const UserHome = () => {
 
         fetch(url, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
             }
         })
             .then(res => {
@@ -78,7 +78,7 @@ const UserHome = () => {
         fetch(url, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
             }
         })
             .then(() => setPosts(posts.filter(p => p.postId !== postId)))

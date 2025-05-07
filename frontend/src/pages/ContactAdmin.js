@@ -12,7 +12,7 @@ const ContactAdmin = () => {
 
     useEffect(() => {
         if (isAuthenticated()) {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const decodedToken = jwtDecode(token);
             // Pre-fill form with user info if present
             setForm((prev) => ({
