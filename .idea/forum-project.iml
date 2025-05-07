@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/eureka-server/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/user-service" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/message-service/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/email-service/src/main/java" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -26,5 +27,8 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-orm:5.3.31" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:5.3.31" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:5.3.31" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.amqp:spring-amqp:2.4.17" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.amqp:spring-rabbit:2.4.17" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context-support:5.3.31" level="project" />
   </component>
 </module>
