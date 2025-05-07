@@ -60,6 +60,12 @@ const CreatePost = () => {
             return;
         }
 
+        // 新增：判断是否为 inactive 用户
+        if (!userInfo.active) {
+            alert('Please verify your email first.');
+            return;
+        }
+
         const payload = {
             userId: userInfo.userId,
             userName: `${userInfo.firstName} ${userInfo.lastName}`,
@@ -93,6 +99,7 @@ const CreatePost = () => {
             alert('Failed to submit post.');
         }
     };
+
 
     const handleCancel = () => {
         navigate('/home');
