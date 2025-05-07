@@ -72,6 +72,7 @@ public class AdminController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long id) {
         String token = authHeader.substring(7); // Remove "Bearer "
+        System.out.println("wg" + token);
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret.getBytes())
                 .parseClaimsJws(token)
@@ -88,5 +89,9 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or already activated(not banned).");
         }
         return ResponseEntity.ok("User " + id + " has been activated");
+    }
+
+    public void overrideJwtSecretForTest(String jwtSecretForTest) {
+        this.jwtSecret = jwtSecretForTest;
     }
 }

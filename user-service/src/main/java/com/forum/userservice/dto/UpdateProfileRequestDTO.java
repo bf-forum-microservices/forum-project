@@ -1,7 +1,9 @@
 package com.forum.userservice.dto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class UpdateProfileRequestDTO {
     private String email;
     private String firstName;

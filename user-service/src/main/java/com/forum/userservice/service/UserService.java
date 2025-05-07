@@ -4,6 +4,7 @@ import com.forum.userservice.Enum.UserRole;
 import com.forum.userservice.dto.*;
 import com.forum.userservice.entity.User;
 import com.forum.userservice.exception.ForbiddenException;
+import com.forum.userservice.repository.EmailPublisher;
 import com.forum.userservice.repository.UserAuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,11 @@ public class UserService {
 
     @Autowired(required = false)
     private EmailPublisher emailPublisher;
+
+//    public User createNewUser() {
+//        User newUser = new User();
+//        return newUser
+//    }
 
     @Transactional
     public RegisterReturnDTO registerUser(RegisterRequestDTO registerRequest) {
