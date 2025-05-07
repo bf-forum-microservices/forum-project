@@ -29,12 +29,12 @@ const App = () => {
             <Route path="/" element={<PrivateRoute><UserHome /></PrivateRoute>} />
             <Route path="/home" element={<PrivateRoute><UserHome /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
-              <Route path="/create-post" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
+            <Route path="/create-post" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
             {/*<Route path="/admin/home" element={<PrivateRoute><AdminHome /></PrivateRoute>} />*/}
             <Route path="/posts/:id" element={<PrivateRoute><PostDetail /></PrivateRoute>} />
             <Route path="/messages" element={<PrivateRoute><MessageManagement /></PrivateRoute>} />
             <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
-              <Route path="/tokenValidation" element={<PrivateRoute><EmailVerification /></PrivateRoute>} />
+            <Route path="/tokenValidation" element={<PrivateRoute><EmailVerification /></PrivateRoute>} />
           </Routes>
         </main>
       </div>

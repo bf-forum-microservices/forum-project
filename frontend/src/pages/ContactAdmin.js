@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { isAuthenticated } from './../auth';
+import { jwtDecode } from "jwt-decode";
 
 const ContactAdmin = () => {
     const [form, setForm] = useState({
@@ -7,6 +9,19 @@ const ContactAdmin = () => {
         subject: '',
         message: ''
     });
+
+    useEffect(() => {
+        if (isAuthenticated()) {
+            const token = localStorage.getItem('token');
+            const decodedToken = jwtDecode(token);
+            // Pre-fill form with user info if present
+            setForm((prev) => ({
+                ...prev,
+                userId: decodedToken.userId || '',
+                email: decodedToken.sub || ''
+            }));
+        }
+    }, []);
 
     const [errors, setErrors] = useState({});
 
@@ -39,11 +54,35 @@ const ContactAdmin = () => {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (validate()) {
-            console.log('Form is valid, ready to submit:', form);
-            // Future: submit logic here
+            try {
+                const response = await fetch('http://localhost:8080/admin/messages/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(form),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Failed to send message');
+                }
+
+                alert('Message sent successfully!');
+                setForm({
+                    userId: isAuthenticated() ? form.userId: '',
+                    email: isAuthenticated() ? form.email: '',
+                    subject: '',
+                    message: ''
+                });
+                setErrors({});
+            } catch (err) {
+                console.error('Error submitting message', err);
+                alert('Failed to send message. Please try again later.');
+            }
         }
     };
 
@@ -52,13 +91,14 @@ const ContactAdmin = () => {
             <h2 className="mb-4">Contact Admin</h2>
             <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-3">
-                    <label htmlFor="userId" className="form-label">User ID</label>
+                    <label htmlFor="userId" className="form-label">{isAuthenticated() ? 'User ID' : 'User ID (Optional)'}</label>
                     <input
                         type="text"
                         name="userId"
                         className="form-control"
                         value={form.userId}
                         onChange={handleChange}
+                        readOnly={isAuthenticated()}
                     />
                 </div>
 
@@ -72,6 +112,7 @@ const ContactAdmin = () => {
                         className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                         value={form.email}
                         onChange={handleChange}
+                        readOnly={isAuthenticated()}
                         required
                     />
                     {errors.email && <div className="invalid-feedback">{errors.email}</div>}

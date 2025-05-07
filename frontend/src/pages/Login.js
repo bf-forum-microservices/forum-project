@@ -28,7 +28,6 @@ const Login = () => {
             const data = await response.json();
             console.log('Login successful:', data);
 
-            // If returns{ token: '...' }
             localStorage.setItem('token', data.token);
             navigate('/home');
 
@@ -39,37 +38,41 @@ const Login = () => {
     };
 
     return (
-        <div className="page-shift">
-            <h2>Login</h2>
-            <form onSubmit={handleLogin} className="login-form">
-                <div className="form-group">
-                    <label>Email:</label>
+        <div className="container mt-5" style={{ maxWidth: '500px' }}>
+            <h2 className="mb-4">Login</h2>
+            <form onSubmit={handleLogin} noValidate>
+                <div className="mb-3">
+                    <label htmlFor="email" className="form-label">Email<span className="text-danger">*</span></label>
                     <input
                         type="email"
+                        className="form-control"
+                        id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                 </div>
 
-                <div className="form-group">
-                    <label>Password:</label>
+                <div className="mb-3">
+                    <label htmlFor="password" className="form-label">Password<span className="text-danger">*</span></label>
                     <input
                         type="password"
+                        className="form-control"
+                        id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                 </div>
 
-                {error && <p className="error-message">{error}</p>}
+                {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
-                <button type="submit">Login</button>
+                <button type="submit" className="btn btn-success w-100">Login</button>
             </form>
 
-            <p>
-                Don't have an account?{' '}
-                <button onClick={() => navigate('/register')} className="link-button">
+            <p className="mt-3 text-center">
+                Don’t have an account?{' '}
+                <button onClick={() => navigate('/register')} type="button">
                     Register here
                 </button>
             </p>

@@ -13,7 +13,6 @@ const Register = () => {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    // update form data
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -46,9 +45,9 @@ const Register = () => {
 
     return (
         <div className="page-shift">
-            <h2>Register</h2>
-            <form onSubmit={handleRegister} className="register-form">
-                <div className="form-group">
+            <div className="profile-container">
+                <h2>Register</h2>
+                <form onSubmit={handleRegister}>
                     <label>First Name:</label>
                     <input
                         type="text"
@@ -57,9 +56,7 @@ const Register = () => {
                         onChange={handleChange}
                         required
                     />
-                </div>
 
-                <div className="form-group">
                     <label>Last Name:</label>
                     <input
                         type="text"
@@ -68,9 +65,7 @@ const Register = () => {
                         onChange={handleChange}
                         required
                     />
-                </div>
 
-                <div className="form-group">
                     <label>Email:</label>
                     <input
                         type="email"
@@ -79,9 +74,7 @@ const Register = () => {
                         onChange={handleChange}
                         required
                     />
-                </div>
 
-                <div className="form-group">
                     <label>Password:</label>
                     <input
                         type="password"
@@ -90,20 +83,20 @@ const Register = () => {
                         onChange={handleChange}
                         required
                     />
-                </div>
 
-                {error && <p className="error-message">{error}</p>}
-                {message && <p className="success-message">{message}</p>}
+                    {error && <p className="error-message">{error}</p>}
+                    {message && <p className="success-message">{message}</p>}
 
-                <button type="submit">Register</button>
-            </form>
+                    <button type="submit">Register</button>
+                </form>
 
-            <p>
-                Already have an account?{' '}
-                <button onClick={() => navigate('/login')} className="link-button">
-                    Login here
-                </button>
-            </p>
+                <p>
+                    Already have an account?{' '}
+                    <button onClick={() => navigate('/login')} type="button">
+                        Login here
+                    </button>
+                </p>
+            </div>
         </div>
     );
 };
