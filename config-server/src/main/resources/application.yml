@@ -8,9 +8,7 @@ spring:
     config:
       server:
         native:
-          search-locations: ..\config-repo
-
-          #/Users/fan/IdeaProjects/forum-team_project/config-repo
+          search-locations: /Users/fan/IdeaProjects/forum-team_project/config-repo
           # C:\Users\silas\IdeaProjects\forum-project\config-repo
           #  ..\config-repo
           # /Users/crystalzhao95/react-tabs-hw/forum-project/config-repo

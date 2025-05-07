@@ -1,6 +1,7 @@
 package com.forum.userservice.service;
 
 import com.forum.userservice.Enum.UserRole;
+import com.forum.userservice.RabbitMessagePublisher;
 import com.forum.userservice.dto.*;
 import com.forum.userservice.entity.User;
 import com.forum.userservice.exception.ForbiddenException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -27,6 +29,9 @@ public class UserService {
 
     @Autowired(required = false)
     private EmailPublisher emailPublisher;
+
+    @Autowired
+    private RabbitMessagePublisher rabbitMessagePublisher;
 
 //    public User createNewUser() {
 //        User newUser = new User();
@@ -53,12 +58,11 @@ public class UserService {
 //            newUser.setProfileImageURL("https://your-default-image-url.com/default.jpg");
 //        }
 
-        // TODO: Publish email verification message to RabbitMQ
-        if (emailPublisher != null) {
-            System.out.println("EmailPublisher not available — skipping email verification step.");
-        } else {
-            emailPublisher.sendVerificationEmail(newUser.getEmail(), "dummy-token");
-        }
+        System.out.println("About to send email");
+
+        emailPublisher.sendVerificationEmail(newUser.getEmail(), newUser.getVerificationCode());
+
+        System.out.println("Send email");
 
         userAuthRepository.save(newUser);
 
@@ -129,14 +133,12 @@ public class UserService {
         user.setPendingEmail(newEmail);
         user.setVerificationCode(generate6DigitCode());
 
-        // send verification email to pending email
-        //emailPublisher.sendVerificationEmail(newEmail, user.getVerificationCode());
-        // TODO: Publish email verification message to RabbitMQ
-        if (emailPublisher != null) {
-            System.out.println("EmailPublisher not available — skipping email verification step.");
-        } else {
-            emailPublisher.sendVerificationEmail(newEmail, "dummy-token");
-        }
+
+        System.out.println("update email, About to send email");
+
+        emailPublisher.sendVerificationEmail(user.getPendingEmail(), user.getVerificationCode());
+
+        System.out.println("Send email to new email");
 
         userAuthRepository.save(user);
     }
@@ -175,6 +177,26 @@ public class UserService {
 
         return dto;
     }
+    public UserDTO getUserInfoById(Long userId) {
+        Optional<User> optionalUser = userAuthRepository.findById(userId);
+
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+
+        User user = optionalUser.get();
+
+        UserDTO dto = new UserDTO();
+        dto.setUserId(user.getUserId());
+        dto.setEmail(user.getEmail());
+        dto.setType(user.getType());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setProfileImageURL(user.getProfileImageURL());
+
+        return dto;
+    }
+
 
     public void processContactMessage(String email, String subject, String message) {
         // Log it or send email (or save to DB)
