@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { isAuthenticated } from './../auth';
+import {isAdmin, isAuthenticated} from './../auth';
 import { jwtDecode } from "jwt-decode";
 
 const ContactAdmin = () => {

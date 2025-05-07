@@ -36,6 +36,7 @@ spring:
               - GET
               - POST
               - PUT
+              - PATCH
               - DELETE
             allowedOrigins: "http://localhost:3000"
             allowedHeaders: "*"
