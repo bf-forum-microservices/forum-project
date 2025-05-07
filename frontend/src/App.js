@@ -8,6 +8,7 @@ import ContactAdmin from './pages/ContactAdmin';
 import PostDetail from './pages/PostDetail';
 import AdminHome from './pages/AdminHome';
 import MessageManagement from './pages/MessageManagement';
+import Message from './pages/Message';
 import UserManagement from './pages/UserManagement';
 import Navbar from './components/Navbar';
 import EmailVerification from './pages/TokenValidation';
@@ -33,6 +34,7 @@ const App = () => {
             {/*<Route path="/admin/home" element={<PrivateRoute><AdminHome /></PrivateRoute>} />*/}
             <Route path="/posts/:id" element={<PrivateRoute><PostDetail /></PrivateRoute>} />
             <Route path="/messages" element={<PrivateRoute><MessageManagement /></PrivateRoute>} />
+            <Route path="/message/:id" element={<PrivateRoute><Message /></PrivateRoute>} />
             <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
             <Route path="/tokenValidation" element={<PrivateRoute><EmailVerification /></PrivateRoute>} />
           </Routes>

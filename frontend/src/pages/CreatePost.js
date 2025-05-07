@@ -14,7 +14,7 @@ const CreatePost = () => {
     // 🔹 获取当前用户信息
     useEffect(() => {
         const fetchUserInfo = async () => {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) return;
 
             try {
@@ -78,7 +78,7 @@ const CreatePost = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`
                 },
                 body: JSON.stringify(payload)
             });

@@ -50,6 +50,15 @@ button {
     cursor: pointer;
 }
 
+.admin-btn {
+    font-size: 1rem;
+    padding: 6px;
+    background-color: cornflowerblue;
+    color: white;
+    border-radius: 6px;
+    margin-right: 0.5rem;
+}
+
 button[type="submit"] {
     background-color: #4caf50;
     color: white;

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import './Pages.css'
 
 const AdminMessages = () => {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch('http://localhost:8080/admin/messages/all') //
@@ -15,12 +17,12 @@ const AdminMessages = () => {
     const markAsProcessed = async (id) => {
         setError(null);
         try {
-            const response = await fetch(`http://localhost:8080/admin/messages/${id}/status?status=processed`, {
+            const res = await fetch(`http://localhost:8080/admin/messages/${id}/status?status=processed`, {
                 method: 'PATCH'
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
+            if (!res.ok) {
+                const errorText = await res.text();
                 throw new Error(errorText || 'Failed to update status');
             }
 
@@ -39,12 +41,12 @@ const AdminMessages = () => {
 
     const markAsResolved = async (id) => {
         try {
-            const response = await fetch(`http://localhost:8080/admin/messages/${id}/status?status=resolved`, {
+            const res = await fetch(`http://localhost:8080/admin/messages/${id}/status?status=resolved`, {
                 method: 'PATCH'
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
+            if (!res.ok) {
+                const errorText = await res.text();
                 throw new Error(errorText || 'Failed to update status');
             }
 
@@ -60,6 +62,10 @@ const AdminMessages = () => {
             alert(errorMessage);
         }
     };
+
+    const viewMessage = (id) => {
+        navigate(`/message/${id}`);
+    }
 
     return (
         <div className="admin-messages">
@@ -83,13 +89,15 @@ const AdminMessages = () => {
                         <td>{new Date(msg.dateCreated).toLocaleString()}</td>
                         <td>{msg.subject}</td>
                         <td>{msg.email}</td>
-                        <td>{msg.content}</td>
+                        <td><button className="admin-btn" onClick={() => viewMessage(msg.messageId)}>View</button></td>
                         <td>{msg.status}</td>
                         <td>
-                            <button onClick={() => markAsProcessed(msg.messageId, msg.status)}>
+                            <button className="admin-btn"
+                                    onClick={() => markAsProcessed(msg.messageId, msg.status)}>
                                 Mark as Processed
                             </button>
-                            <button onClick={() => markAsResolved(msg.messageId, msg.status)}>
+                            <button className="admin-btn"
+                                    onClick={() => markAsResolved(msg.messageId, msg.status)}>
                                 Mark as Resolved
                             </button>
                         </td>

@@ -12,7 +12,7 @@ const PostDetail = () => {
 
     const getAuthHeaders = () => ({
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
     });
 
     // 🔹 获取当前用户信息
@@ -21,7 +21,7 @@ const PostDetail = () => {
             try {
                 const res = await fetch('http://localhost:8080/users/info', {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                     },
                 });
                 if (res.ok) {
