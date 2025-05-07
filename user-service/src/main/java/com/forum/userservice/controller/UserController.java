@@ -94,6 +94,12 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
+    @GetMapping("/infoByUserId/{userId}")
+    public ResponseEntity<UserDTO> getUserInfoById(@PathVariable Long userId) {
+        UserDTO userDTO = userService.getUserInfoById(userId);
+        return ResponseEntity.ok(userDTO);
+    }
+
     @PostMapping("/contactUs")
     public ResponseEntity<String> contactUs(
             @RequestHeader("Authorization") String authHeader,
