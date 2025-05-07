@@ -6,6 +6,7 @@ const UserHome = () => {
     const [sortOrder, setSortOrder] = useState('desc');
     const [tab, setTab] = useState('published');
     const [isAdmin, setIsAdmin] = useState(false);
+    const [avatarMap, setAvatarMap] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,6 +41,37 @@ const UserHome = () => {
                 }
             });
     }, [tab, isAdmin]);
+
+    const fetchUserInfo = async (userId) => {
+        if (avatarMap[userId]) return;
+
+        try {
+            const res = await fetch(`http://localhost:8080/users/infoByUserId/${userId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setAvatarMap(prev => ({
+                    ...prev,
+                    [userId]: {
+                        userName: `${data.firstName} ${data.lastName}`,
+                        profileImageURL: data.profileImageURL
+                    }
+                }));
+            }
+        } catch (err) {
+            console.error(`Failed to fetch user info for userId ${userId}:`, err);
+        }
+    };
+
+    useEffect(() => {
+        posts.forEach(post => {
+            fetchUserInfo(post.userId);
+        });
+    }, [posts]);
 
     const handleAction = (postId, action) => {
         const url = `http://localhost:8080/postandreply/admin/posts/${postId}/${action}`;
@@ -91,20 +123,38 @@ const UserHome = () => {
                             style={{ cursor: 'pointer' }}>
                             {post.title || '(No Title)'}
                         </strong>
-                        <br />
-                        By: {post.userName} | {new Date(post.dateCreated).toLocaleString('en-US', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit', second: '2-digit'
-                    })}
 
-                        {isAdmin && tab === 'published' && (
-                            <button onClick={() => handleAction(post.postId, 'ban')}>Ban</button>
-                        )}
-                        {isAdmin && tab === 'banned' && (
-                            <button onClick={() => handleAction(post.postId, 'unban')}>Unban</button>
-                        )}
-                        {isAdmin && tab === 'deleted' && (
-                            <button onClick={() => handleAction(post.postId, 'recover')}>Recover</button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '5px' }}>
+                            {avatarMap[post.userId]?.profileImageURL && (
+                                <img
+                                    src={avatarMap[post.userId].profileImageURL}
+                                    alt="avatar"
+                                    width={40}
+                                    height={40}
+                                    style={{ borderRadius: '50%' }}
+                                />
+                            )}
+                            <span>
+                                By: {avatarMap[post.userId]?.userName || 'Loading...'} |{' '}
+                                {new Date(post.dateCreated).toLocaleString('en-US', {
+                                    year: 'numeric', month: '2-digit', day: '2-digit',
+                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                                })}
+                            </span>
+                        </div>
+
+                        {isAdmin && (
+                            <div style={{ marginTop: '5px' }}>
+                                {tab === 'published' && (
+                                    <button onClick={() => handleAction(post.postId, 'ban')}>Ban</button>
+                                )}
+                                {tab === 'banned' && (
+                                    <button onClick={() => handleAction(post.postId, 'unban')}>Unban</button>
+                                )}
+                                {tab === 'deleted' && (
+                                    <button onClick={() => handleAction(post.postId, 'recover')}>Recover</button>
+                                )}
+                            </div>
                         )}
                     </li>
                 ))}

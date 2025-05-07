@@ -9,12 +9,14 @@ const PostDetail = () => {
     const [subReplyContent, setSubReplyContent] = useState({});
     const [error, setError] = useState('');
     const [userInfo, setUserInfo] = useState(null);
+    const [avatarMap, setAvatarMap] = useState({});
 
     const getAuthHeaders = () => ({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
     });
 
+    // 获取当前登录用户
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -35,6 +37,7 @@ const PostDetail = () => {
         fetchUserInfo();
     }, []);
 
+    // 获取帖子和回复
     useEffect(() => {
         fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
             method: 'GET',
@@ -54,6 +57,38 @@ const PostDetail = () => {
             });
     }, [postId]);
 
+    // 拉取头像和用户名称（缓存）
+    const fetchUserInfoById = async (userId) => {
+        if (avatarMap[userId]) return;
+
+        try {
+            const res = await fetch(`http://localhost:8080/users/infoByUserId/${userId}`, {
+                headers: getAuthHeaders(),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setAvatarMap(prev => ({
+                    ...prev,
+                    [userId]: {
+                        userName: `${data.firstName} ${data.lastName}`,
+                        profileImageURL: data.profileImageURL
+                    }
+                }));
+            }
+        } catch (err) {
+            console.error(`Failed to load avatar for user ${userId}:`, err);
+        }
+    };
+
+    // 加载所有相关 userId 的头像（帖子作者 + 回复者 + 子回复者）
+    useEffect(() => {
+        if (post) fetchUserInfoById(post.userId);
+        replies.forEach(reply => {
+            fetchUserInfoById(reply.userId);
+            reply.subReplies?.forEach(sub => fetchUserInfoById(sub.userId));
+        });
+    }, [post, replies]);
+
     const handleReply = async () => {
         if (!replyContent.trim() || !userInfo) return;
 
@@ -64,8 +99,7 @@ const PostDetail = () => {
                 body: JSON.stringify({
                     comment: replyContent,
                     userId: userInfo.userId,
-                    userName: `${userInfo.firstName} ${userInfo.lastName}`,
-                    profileImageURL: userInfo.profileImageURL, // ✅ 加入头像
+                    userName: `${userInfo.firstName} ${userInfo.lastName}`
                 }),
             });
 
@@ -89,8 +123,7 @@ const PostDetail = () => {
                 body: JSON.stringify({
                     comment: content,
                     userId: userInfo.userId,
-                    userName: `${userInfo.firstName} ${userInfo.lastName}`,
-                    profileImageURL: userInfo.profileImageURL, // ✅ 加入头像
+                    userName: `${userInfo.firstName} ${userInfo.lastName}`
                 }),
             });
 
@@ -110,18 +143,20 @@ const PostDetail = () => {
         <div className="post-detail" style={{ padding: "20px" }}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
+
             <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "10px 0" }}>
-                {post.profileImageURL && (
+                {avatarMap[post.userId]?.profileImageURL && (
                     <img
-                        src={post.profileImageURL}
+                        src={avatarMap[post.userId].profileImageURL}
                         alt="author-avatar"
                         width={50}
                         height={50}
                         style={{ borderRadius: "50%" }}
                     />
                 )}
-                <p><strong>By:</strong> {post.userName || `User ${post.userId}`}</p>
+                <p><strong>By:</strong> {avatarMap[post.userId]?.userName || `User ${post.userId}`}</p>
             </div>
+
             <p>Created: {new Date(post.dateCreated).toLocaleString()}</p>
             <p>Updated: {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -153,32 +188,32 @@ const PostDetail = () => {
                 {replies.map(reply => (
                     <li key={reply.replyId}>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "5px" }}>
-                            {reply.profileImageURL && (
+                            {avatarMap[reply.userId]?.profileImageURL && (
                                 <img
-                                    src={reply.profileImageURL}
+                                    src={avatarMap[reply.userId].profileImageURL}
                                     alt="avatar"
                                     width={40}
                                     height={40}
                                     style={{ borderRadius: "50%" }}
                                 />
                             )}
-                            <p><strong>{reply.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
+                            <p><strong>{avatarMap[reply.userId]?.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
                         </div>
 
                         <ul>
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "3px" }}>
-                                        {sub.profileImageURL && (
+                                        {avatarMap[sub.userId]?.profileImageURL && (
                                             <img
-                                                src={sub.profileImageURL}
+                                                src={avatarMap[sub.userId].profileImageURL}
                                                 alt="avatar"
                                                 width={35}
                                                 height={35}
                                                 style={{ borderRadius: "50%" }}
                                             />
                                         )}
-                                        <strong>{sub.userName || `User ${sub.userId}`}</strong>: {sub.comment}
+                                        <strong>{avatarMap[sub.userId]?.userName || `User ${sub.userId}`}</strong>: {sub.comment}
                                     </div>
                                 </li>
                             ))}
