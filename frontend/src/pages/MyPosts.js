@@ -144,7 +144,7 @@ const MyPosts = () => {
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
                                 <button onClick={() => handleEditPost(post)}>Edit</button>
-                                <button onClick={() => handleDeletePost(post.postId)}>Archive Post</button>
+                                <button onClick={() => handleDeletePost(post.postId)}>Delete Post</button>
                                 <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
                             </li>
                         ))}
