@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Key;
@@ -113,5 +114,18 @@ class UserControllerTest {
 
         verify(userService).processContactMessage("user@example.com", "Help", "Something's wrong!");
         assertEquals("Your message has been received. We'll get back to you soon.", response.getBody());
+    }
+
+    @Test
+    void getUserInfoById_shouldReturnUserDTO() throws Exception {
+        Long userId = 1L;
+        UserDTO mockUser = new UserDTO();
+        mockUser.setEmail("user@example.com");
+
+        when(userService.getUserInfoById(userId)).thenReturn(mockUser);
+        ResponseEntity<UserDTO> response = userController.getUserInfoById(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 }
