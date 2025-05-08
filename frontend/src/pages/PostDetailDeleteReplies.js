@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const PostDetailDeleteReplies = () => {
     const { postId } = useParams();
@@ -9,6 +10,7 @@ const PostDetailDeleteReplies = () => {
     const [subReplyContent, setSubReplyContent] = useState({});
     const [userInfo, setUserInfo] = useState(null);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const getAuthHeaders = () => ({
         'Content-Type': 'application/json',
@@ -184,6 +186,21 @@ const PostDetailDeleteReplies = () => {
 
     return (
         <div className="post-detail" style={{ padding: "20px" }}>
+            {/* 返回 My Posts 按钮 */}
+            <button
+                onClick={() => navigate('/myposts')}
+                style={{
+                    marginBottom: "15px",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                }}
+            >
+                ← Back to My Posts
+            </button>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
             <p><strong>Status:</strong> {post.status}</p>
