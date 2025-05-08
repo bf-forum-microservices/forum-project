@@ -126,7 +126,6 @@ const MyPosts = () => {
     };
 
     const handleViewPostDetails = (postId) => {
-        console.log("Clicked Post ID:", postId);
         navigate(`/myposts/${postId}`);
     };
 

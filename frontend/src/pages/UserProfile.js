@@ -163,6 +163,7 @@ const UserProfile = () => {
     const [newEmail, setNewEmail] = useState('');
     const [emailVerificationCode, setEmailVerificationCode] = useState('');
     const [emailStep, setEmailStep] = useState(1); // 1 = input new email, 2 = verify code
+    const [topPosts, setTopPosts] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -183,6 +184,14 @@ const UserProfile = () => {
                     password: '',
                     profileImageURL: res.data.profileImageURL || ''
                 });
+
+                // Fetch top 3 posts for this user
+                axios.get(`http://localhost:8080/postandreply/posts/top/${res.data.userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                    .then(response => setTopPosts(response.data))
+                    .catch(err => console.error('Failed to fetch top 3 posts:', err));
+
             })
             .catch(() => {
                 setError('Failed to load profile.');
@@ -239,79 +248,50 @@ const UserProfile = () => {
         }
     };
 
+    const handlePostClick = (postId) => {
+        navigate(`/myposts/${postId}`);
+    };
+
     if (error) return <div className="error-message">{error}</div>;
     if (!userInfo) return <div>Loading profile...</div>;
 
     return (
-        <div className="profile-container">
-            <h2>User Profile</h2>
+        <div className="profile-page-container">
+            <div className="profile-container">
+                <h2>User Profile</h2>
 
-            <img
-                src={userInfo.profileImageURL || 'https://happypathbucket123.s3.amazonaws.com/fa4475be-aedd-4905-a3d5-b3a643b40753_default-avatar-icon-of-social-media-user-vector.jpg'}
-                alt="Profile"
-                className="profile-image"
-            />
+                <img
+                    src={userInfo.profileImageURL || 'https://happypathbucket123.s3.amazonaws.com/fa4475be-aedd-4905-a3d5-b3a643b40753_default-avatar-icon-of-social-media-user-vector.jpg'}
+                    alt="Profile"
+                    className="profile-image"
+                />
 
-            {editMode ? (
-                <form onSubmit={handleSubmit}>
-                    <label>First Name:</label>
-                    <input name="firstName" value={formData.firstName} onChange={handleChange} required />
-
-                    <label>Last Name:</label>
-                    <input name="lastName" value={formData.lastName} onChange={handleChange} required />
-
-                    <label>Password:</label>
-                    <input name="password" type="password" value={formData.password} onChange={handleChange} />
-
-                    <label>Profile Image URL:</label>
-                    <input name="profileImageURL" value={formData.profileImageURL} onChange={handleChange} />
-
-                    <button type="submit">Save</button>
-                    <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
-                </form>
-            ) : (
-                <>
-                    <p><strong>Full Name:</strong> {userInfo.firstName} {userInfo.lastName}</p>
-                    <p><strong>Email:</strong> {userInfo.email}</p>
-                    <p><strong>Role:</strong> {userInfo.type}</p>
-                    <button onClick={() => setEditMode(true)}>Edit Profile</button>
-                </>
-            )}
-
-            {emailEditMode ? (
-                <form onSubmit={emailStep === 1 ? handleSendVerificationCode : handleVerifyEmailCode}>
-                    {emailStep === 1 ? (
-                        <>
-                            <label>New Email:</label>
-                            <input
-                                type="email"
-                                value={newEmail}
-                                onChange={(e) => setNewEmail(e.target.value)}
-                                required
-                            />
-                            <button type="submit">Send Verification Code</button>
-                        </>
-                    ) : (
-                        <>
-                            <label>Verification Code:</label>
-                            <input
-                                value={emailVerificationCode}
-                                onChange={(e) => setEmailVerificationCode(e.target.value)}
-                                required
-                            />
-                            <button type="submit">Verify and Update Email</button>
-                        </>
-                    )}
-                    <button type="button" onClick={() => { setEmailEditMode(false); setEmailStep(1); }}>Cancel</button>
-                </form>
-            ) : (
-                <>
-                <button onClick={() => setEmailEditMode(true)}>Change Email</button>
+                <p><strong>Full Name:</strong> {userInfo.firstName} {userInfo.lastName}</p>
+                <p><strong>Email:</strong> {userInfo.email}</p>
+                <p><strong>Role:</strong> {userInfo.type}</p>
+                <button onClick={() => setEditMode(true)}>Edit Profile</button>
                 <button onClick={() => navigate('/myposts')}>My Post</button>
-               </>
-            )}
+            </div>
 
-
+            {/* Centered Top 3 Posts Section */}
+            <div className="top-posts-wrapper">
+                <div className="top-posts-container">
+                    <h3>Top 3 Posts</h3>
+                    {topPosts.length > 0 ? (
+                        topPosts.map(post => (
+                            <div key={post.postId} className="post-card">
+                                <h4 className="clickable-title" onClick={() => handlePostClick(post.postId)}>{post.title}</h4>
+                                <p>{post.content}</p>
+                                <p><strong>Status:</strong> {post.status}</p>
+                                <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
+                                <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No posts to display.</p>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
