@@ -10,6 +10,8 @@ spring:
 
 aws:
   s3:
+    accessKeyId: AKIAXZMEDYBZKSGKGMJ6
+    secretAccessKey: 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
     bucket: happypathbucket123
     region: us-east-2
     access-Key: AKIAXZMEDYBZKSGKGMJ6
