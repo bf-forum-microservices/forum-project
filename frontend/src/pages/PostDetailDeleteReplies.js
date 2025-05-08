@@ -6,6 +6,10 @@ import { useParams } from 'react-router-dom';
 const PostDetailDeleteReplies = () => {
     const { postId } = useParams();
     const [post, setPost] = useState(null);
+    const [replies, setReplies] = useState([]);
+    const [replyContent, setReplyContent] = useState('');
+    const [subReplyContent, setSubReplyContent] = useState({});
+    const [userInfo, setUserInfo] = useState(null);
     const [error, setError] = useState('');
 
     const getAuthHeaders = () => ({
@@ -13,6 +17,26 @@ const PostDetailDeleteReplies = () => {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
     });
 
+    // 获取用户信息
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/users/info', {
+                    headers: getAuthHeaders(),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setUserInfo(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch user info:', err);
+                setError('Failed to fetch user info.');
+            }
+        };
+        fetchUserInfo();
+    }, []);
+
+    // 获取帖子详情
     useEffect(() => {
         const fetchPostDetails = async () => {
             try {
@@ -21,23 +45,73 @@ const PostDetailDeleteReplies = () => {
                     headers: getAuthHeaders(),
                 });
 
-                if (!response.ok) {
-                    throw new Error("Failed to load post details");
-                }
+                if (!response.ok) throw new Error("Failed to load post details");
 
                 const data = await response.json();
-                console.log("Fetched Post Data:", data);
                 setPost(data);
+                setReplies(data.postReplies || []);
             } catch (err) {
                 console.error("Error loading post details:", err);
                 setError("Failed to load post details. Please try again later.");
             }
         };
 
-        if (postId) {
-            fetchPostDetails();
-        }
+        if (postId) fetchPostDetails();
     }, [postId]);
+
+    // 添加回复
+    const handleReply = async () => {
+        if (!replyContent.trim() || !userInfo) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    userId: userInfo.userId,
+                    comment: replyContent,
+                    isActive: true,
+                    subReplies: []
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to post reply");
+
+            const updatedPost = await response.json();
+            setReplies(updatedPost.postReplies || []);
+            setReplyContent('');
+        } catch (err) {
+            console.error("Reply failed:", err);
+            setError("Failed to post reply. Please try again.");
+        }
+    };
+
+    // 添加子回复
+    const handleSubReply = async (replyId) => {
+        const content = subReplyContent[replyId];
+        if (!content?.trim() || !userInfo) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    userId: userInfo.userId,
+                    comment: content,
+                    isActive: true
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to post sub-reply");
+
+            const updatedPost = await response.json();
+            setReplies(updatedPost.postReplies || []);
+            setSubReplyContent(prev => ({ ...prev, [replyId]: '' }));
+        } catch (err) {
+            console.error("Sub-reply failed:", err);
+            setError("Failed to post sub-reply. Please try again.");
+        }
+    };
 
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!post) return <p>Loading...</p>;
@@ -46,32 +120,46 @@ const PostDetailDeleteReplies = () => {
         <div className="post-detail" style={{ padding: "20px" }}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
-
             <p><strong>Status:</strong> {post.status}</p>
             <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
             <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
 
-            {post.images && post.images.length > 0 && (
-                <div>
-                    <h4>Images:</h4>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        {post.images.map((img, idx) => img && (
-                            <img key={idx} src={`/${img}`} alt={img} width={120} />
-                        ))}
-                    </div>
-                </div>
-            )}
+            <hr />
+            <h3>Replies</h3>
+            <ul>
+                {replies.map(reply => (
+                    <li key={reply.replyId} style={{ marginBottom: "15px" }}>
+                        <strong>User {reply.userId}:</strong> {reply.comment}
 
-            {post.attachments && post.attachments.length > 0 && (
-                <div>
-                    <h4>Attachments:</h4>
-                    <ul>
-                        {post.attachments.map((file, idx) => file && (
-                            <li key={idx}><a href={`/${file}`} download>{file}</a></li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+                        <ul style={{ marginLeft: "20px" }}>
+                            {reply.subReplies.map(sub => (
+                                <li key={sub.subReplyId}>
+                                    <strong>User {sub.userId}:</strong> {sub.comment}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <input
+                            value={subReplyContent[reply.replyId] || ''}
+                            onChange={(e) =>
+                                setSubReplyContent({ ...subReplyContent, [reply.replyId]: e.target.value })
+                            }
+                            placeholder="Reply to this reply..."
+                        />
+                        <button onClick={() => handleSubReply(reply.replyId)}>Send Sub-reply</button>
+                    </li>
+                ))}
+            </ul>
+
+            <hr />
+            <h4>Add a Reply:</h4>
+            <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Write your reply..."
+            />
+            <br />
+            <button onClick={handleReply}>Send Reply</button>
         </div>
     );
 };
