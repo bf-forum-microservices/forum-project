@@ -19,4 +19,6 @@ public class RegisterRequestDTO {
 
     @NotBlank
     private String password;
+
+    private String profileImageURL;
 }
