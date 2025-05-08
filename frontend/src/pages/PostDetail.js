@@ -23,7 +23,6 @@ const PostDetail = () => {
                     headers: {
                         Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                     },
-                    headers: getAuthHeaders(),
                 });
                 if (res.ok) {
                     const data = await res.json();

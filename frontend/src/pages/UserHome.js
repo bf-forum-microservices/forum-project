@@ -20,7 +20,7 @@ const UserHome = () => {
             try {
                 const res = await fetch('http://localhost:8080/users/info', {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                     },
                 });
                 if (res.ok) {
@@ -71,7 +71,7 @@ const UserHome = () => {
         try {
             const res = await fetch(`http://localhost:8080/users/infoByUserId/${userId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
