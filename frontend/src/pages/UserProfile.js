@@ -158,9 +158,13 @@ const UserProfile = () => {
         password: '',
         profileImageURL: ''
     });
+    const [emailEditMode, setEmailEditMode] = useState(false);
+    const [newEmail, setNewEmail] = useState('');
+    const [emailVerificationCode, setEmailVerificationCode] = useState('');
+    const [emailStep, setEmailStep] = useState(1); // 1 = input new email, 2 = verify code
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             setError('You must be logged in to view this page.');
             return;
@@ -192,7 +196,7 @@ const UserProfile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         try {
             await axios.put('http://localhost:8080/users/updateProfile', formData, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -202,6 +206,34 @@ const UserProfile = () => {
             window.location.reload(); // to refresh updated info
         } catch {
             alert('Failed to update profile.');
+        }
+    };
+    const handleSendVerificationCode = async (e) => {
+        e.preventDefault();
+        const token = sessionStorage.getItem('token');
+        try {
+            await axios.put('http://localhost:8080/users/updateEmail', { newEmail }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            alert('Verification code sent to new email.');
+            setEmailStep(2); // Move to next step
+        } catch (err) {
+            alert('Failed to send verification code.');
+        }
+    };
+
+    const handleVerifyEmailCode = async (e) => {
+        e.preventDefault();
+        const token = sessionStorage.getItem('token');
+        try {
+            await axios.post('http://localhost:8080/users/verifyUpdateEmailCode', { code: emailVerificationCode }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            alert('Email updated successfully!');
+            setEmailEditMode(false);
+            window.location.reload(); // Refresh profile info
+        } catch (err) {
+            alert('Invalid or expired verification code.');
         }
     };
 
@@ -243,6 +275,38 @@ const UserProfile = () => {
                     <button onClick={() => setEditMode(true)}>Edit Profile</button>
                 </>
             )}
+
+            {emailEditMode ? (
+                <form onSubmit={emailStep === 1 ? handleSendVerificationCode : handleVerifyEmailCode}>
+                    {emailStep === 1 ? (
+                        <>
+                            <label>New Email:</label>
+                            <input
+                                type="email"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                required
+                            />
+                            <button type="submit">Send Verification Code</button>
+                        </>
+                    ) : (
+                        <>
+                            <label>Verification Code:</label>
+                            <input
+                                value={emailVerificationCode}
+                                onChange={(e) => setEmailVerificationCode(e.target.value)}
+                                required
+                            />
+                            <button type="submit">Verify and Update Email</button>
+                        </>
+                    )}
+                    <button type="button" onClick={() => { setEmailEditMode(false); setEmailStep(1); }}>Cancel</button>
+                </form>
+            ) : (
+                <button onClick={() => setEmailEditMode(true)}>Change Email</button>
+            )}
+
+
         </div>
     );
 };

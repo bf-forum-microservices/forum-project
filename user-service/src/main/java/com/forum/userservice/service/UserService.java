@@ -171,6 +171,7 @@ public class UserService {
         dto.setLastName(user.getLastName());
         dto.setProfileImageURL(user.getProfileImageURL());
         dto.setActive(user.isActive());
+        dto.setBanned(user.isBanned());
 
         return dto;
     }
@@ -191,6 +192,7 @@ public class UserService {
         dto.setLastName(user.getLastName());
         dto.setProfileImageURL(user.getProfileImageURL());
         dto.setActive(user.isActive());
+        dto.setBanned(user.isBanned());
 
         return dto;
     }
@@ -216,6 +218,8 @@ public class UserService {
             dto.setLastName(user.getLastName());
             dto.setType(user.getType());
             dto.setProfileImageURL(user.getProfileImageURL());
+            dto.setActive(user.isActive());
+            dto.setBanned(user.isBanned());
             return dto;
         }).collect(Collectors.toList());
     }
