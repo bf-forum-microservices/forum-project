@@ -15,6 +15,8 @@ import EmailVerification from './pages/TokenValidation';
 import PrivateRoute from './PrivateRoute'; //
 import CreatePost from './pages/CreatePost';
 import MyPosts from './pages/MyPosts';
+import PostDetailDeleteReplies from './pages/PostDetailDeleteReplies';
+
 
 const App = () => {
 
@@ -39,6 +41,7 @@ const App = () => {
                     <Route path="/create-post" element={<PrivateRoute><CreatePost/></PrivateRoute>}/>
                     <Route path="/posts/:id" element={<PrivateRoute><PostDetail/></PrivateRoute>}/>
                     <Route path="/myposts" element={<MyPosts />} />
+                    <Route path="/myposts/:postId" element={<PrivateRoute><PostDetailDeleteReplies/></PrivateRoute>}/>
                     <Route path="/messages"
                            element={<PrivateRoute requireAdmin={true}><MessageManagement/></PrivateRoute>}/>
                     <Route path="/message/:id"
