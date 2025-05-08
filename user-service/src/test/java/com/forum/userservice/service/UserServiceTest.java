@@ -391,6 +391,39 @@ class UserServiceTest {
         assertEquals("User not found with id: 99", ex.getMessage());
     }
 
+    @Test
+    void promoteToAdminService_shouldReturnFalse_whenUserNotFound() {
+        when(userAuthRepository.findById(999L)).thenReturn(Optional.empty());
+        boolean result = userService.promoteToAdmin(999L);
+        assertFalse(result);
+    }
+
+    @Test
+    void promoteToAdminService_shouldReturnFalse_whenAlreadyAdmin() {
+        User user = new User();
+        user.setUserId(123L);
+        user.setType(UserRole.ADMIN);
+
+        when(userAuthRepository.findById(123L)).thenReturn(Optional.of(user));
+        boolean result = userService.promoteToAdmin(123L);
+        assertFalse(result);
+    }
+
+    @Test
+    void promoteToAdminService_shouldPromoteUser_whenUserIsNormal() {
+        User user = new User();
+        user.setUserId(123L);
+        user.setType(UserRole.USER);
+
+        when(userAuthRepository.findById(123L)).thenReturn(Optional.of(user));
+
+        boolean result = userService.promoteToAdmin(123L);
+
+        assertTrue(result);
+        assertEquals(UserRole.ADMIN, user.getType());
+        verify(userAuthRepository).save(user);
+    }
+
 }
 
 
