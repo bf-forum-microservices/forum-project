@@ -160,7 +160,7 @@ const UserProfile = () => {
     });
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             setError('You must be logged in to view this page.');
             return;
@@ -192,7 +192,7 @@ const UserProfile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         try {
             await axios.put('http://localhost:8080/users/updateProfile', formData, {
                 headers: { Authorization: `Bearer ${token}` }

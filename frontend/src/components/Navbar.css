@@ -64,3 +64,8 @@
 .nav-button:hover {
     opacity: 0.8;
 }
+
+.active {
+    border-bottom: 2px solid white;
+    opacity: 1 !important;
+}
