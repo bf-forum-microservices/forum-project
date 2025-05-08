@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
                 || path.startsWith("/contact")
                 || path.startsWith("/users/register")
                 || path.startsWith("/users/verify-email")
-                || path.startsWith("/admin/messages")
+//                || path.startsWith("/admin/messages")
 //                || path.startsWith("/users")
 //                || path.startsWith("/postandreply")
 //                || path.startsWith("/history")
@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         // exchange: the incoming HTTP request & response.
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("MADE IT HERE 2");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }

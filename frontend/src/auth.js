@@ -8,6 +8,15 @@ export function isAuthenticated() {
 
 export function isAdmin() {
     const token = sessionStorage.getItem('token');
-    const decodedToken = jwtDecode(token);
-    return decodedToken.role === 'ADMIN';
+    if (!token) {
+        return false;
+    }
+    try {
+        const decodedToken = jwtDecode(token);
+        return decodedToken.role === 'ADMIN';
+    } catch (error) {
+        console.error("Invalid token: ", error.message);
+        return false;
+    }
+
 }
