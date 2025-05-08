@@ -14,6 +14,9 @@ import Navbar from './components/Navbar';
 import EmailVerification from './pages/TokenValidation';
 import PrivateRoute from './PrivateRoute'; //
 import CreatePost from './pages/CreatePost';
+import MyPosts from './pages/MyPosts';
+import PostDetailDeleteReplies from './pages/PostDetailDeleteReplies';
+
 
 const App = () => {
 
@@ -37,6 +40,8 @@ const App = () => {
                     <Route path="/profile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
                     <Route path="/create-post" element={<PrivateRoute><CreatePost/></PrivateRoute>}/>
                     <Route path="/posts/:id" element={<PrivateRoute><PostDetail/></PrivateRoute>}/>
+                    <Route path="/myposts" element={<MyPosts />} />
+                    <Route path="/myposts/:postId" element={<PrivateRoute><PostDetailDeleteReplies/></PrivateRoute>}/>
                     <Route path="/messages"
                            element={<PrivateRoute requireAdmin={true}><MessageManagement/></PrivateRoute>}/>
                     <Route path="/message/:id"
@@ -44,6 +49,7 @@ const App = () => {
                     <Route path="/users"
                            element={<PrivateRoute requireAdmin={true}><UserManagement/></PrivateRoute>}/>
                     <Route path="/tokenValidation" element={<PrivateRoute><EmailVerification/></PrivateRoute>}/>
+
 
                     {/* Catch All Route*/}
                     <Route path="/*" element={<NotFoundRedirect />} />

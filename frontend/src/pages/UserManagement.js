@@ -205,6 +205,31 @@ const UserManagement = () => {
         }
     };
 
+    const handlePromote = async (userId) => {
+        const token = sessionStorage.getItem('token');
+
+        try {
+            const res = await axios.put(`http://localhost:8080/users/admin/users/${userId}/promote`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            alert(res.data); // e.g., "User promoted to ADMIN"
+            refreshUsers();  // Re-fetch user list
+        } catch (error) {
+            if (error.response) {
+                // Try to show message safely
+                const errMsg =
+                    typeof error.response.data === 'string'
+                        ? error.response.data
+                        : error.response.data.message || 'An error occurred.';
+                alert(errMsg);
+                //alert(error.response.data.message); // e.g., "User is already ADMIN or SUPER_ADMIN"
+            } else {
+                alert("Failed to promote user.");
+            }
+        }
+    };
+
     const refreshUsers = () => {
         axios.get('http://localhost:8080/users/admin/allUserInfo', {
             headers: { Authorization: `Bearer ${token}` }
@@ -254,6 +279,12 @@ const UserManagement = () => {
                         <td>
                             <button onClick={() => handleBan(user.userId)}>Ban</button>
                             <button onClick={() => handleActivate(user.userId)}>Activate</button>
+                            <button
+                                onClick={() => handlePromote(user.userId)}
+                                disabled={user.type !== 'USER'}
+                            >
+                                Promote to Admin
+                            </button>
                         </td>
                     </tr>
                 ))}

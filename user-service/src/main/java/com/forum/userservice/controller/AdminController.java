@@ -33,7 +33,7 @@ public class AdminController {
                 .getBody();
 
         String role = claims.get("role", String.class);
-        if (!"ADMIN".equalsIgnoreCase(role)) {
+        if (!"ADMIN".equalsIgnoreCase(role) && !"SUPER_ADMIN".equalsIgnoreCase(role)) {
             System.out.println("role " + role);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
@@ -54,7 +54,7 @@ public class AdminController {
                 .getBody();
 
         String role = claims.get("role", String.class);
-        if (!"ADMIN".equalsIgnoreCase(role)) {
+        if (!"ADMIN".equalsIgnoreCase(role) && !"SUPER_ADMIN".equalsIgnoreCase(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can ban users.");
         }
 
@@ -78,7 +78,7 @@ public class AdminController {
                 .getBody();
 
         String role = claims.get("role", String.class);
-        if (!"ADMIN".equalsIgnoreCase(role)) {
+        if (!"ADMIN".equalsIgnoreCase(role) && !"SUPER_ADMIN".equalsIgnoreCase(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can active users.");
         }
 
@@ -88,6 +88,29 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or already activated(not banned).");
         }
         return ResponseEntity.ok("User " + id + " has been activated");
+    }
+
+    @PutMapping("/users/{id}/promote")
+    public ResponseEntity<?> promoteToAdmin(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long id) {
+        String token = authHeader.substring(7);
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret.getBytes())
+                .parseClaimsJws(token)
+                .getBody();
+
+        String role = claims.get("role", String.class);
+        if (!"SUPER_ADMIN".equalsIgnoreCase(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+        }
+
+        boolean success = userService.promoteToAdmin(id);
+        if (!success) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is already ADMIN or SUPER_ADMIN");
+        }
+
+        return ResponseEntity.ok("User promoted to ADMIN");
     }
 
     public void overrideJwtSecretForTest(String jwtSecretForTest) {

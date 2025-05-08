@@ -13,10 +13,9 @@ export function isAdmin() {
     }
     try {
         const decodedToken = jwtDecode(token);
-        return decodedToken.role === 'ADMIN';
+        return decodedToken.role === 'ADMIN' || decodedToken.role === 'SUPER_ADMIN' ;
     } catch (error) {
         console.error("Invalid token: ", error.message);
         return false;
     }
-
 }
