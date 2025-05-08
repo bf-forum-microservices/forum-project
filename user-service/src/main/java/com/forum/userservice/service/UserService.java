@@ -54,9 +54,13 @@ public class UserService {
         newUser.setType(UserRole.USER);
         newUser.setVerificationCode(generate6DigitCode());
             // TODO: upload photos
-//        if (newUser.getProfileImageURL() == null || newUser.getProfileImageURL().isEmpty()) {
-//            newUser.setProfileImageURL("https://your-default-image-url.com/default.jpg");
-//        }
+        if(registerRequest.getProfileImageURL() == null) {
+            newUser.setProfileImageURL("https://happypathbucket123.s3.amazonaws.com" +
+                    "/fa4475be-aedd-4905-a3d5-b3a643b40753_" +
+                    "default-avatar-icon-of-social-media-user-vector.jpg");
+        }else{
+            newUser.setProfileImageURL(registerRequest.getProfileImageURL());
+        }
 
         emailPublisher.sendVerificationEmail(newUser.getEmail(), newUser.getVerificationCode());
 
