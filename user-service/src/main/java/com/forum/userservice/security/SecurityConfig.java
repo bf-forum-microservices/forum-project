@@ -24,6 +24,12 @@ public class SecurityConfig {
                 .antMatchers("/users/**").permitAll()
                 .antMatchers("/users/register", "/users/verify-email", "/contact-us", "/auth/login").permitAll()
                 .antMatchers("/actuator/**").permitAll()
+                .antMatchers("/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/v2/api-docs/**",
+                        "/webjars/**",
+                        "/swagger-resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic().disable()
