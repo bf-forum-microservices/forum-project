@@ -98,6 +98,8 @@ public class UserService {
 
         User user = userOpt.get();
 
+        System.out.println(request.getPassword()+ "  " + user.getPassword());
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password.");
         }
