@@ -22,7 +22,7 @@ public class Post {
     private String status;
     private Date dateCreated;
     private Date dateModified;
-    private List<String> images;
-    private List<String> attachments;
+    private List<String> images = new ArrayList<>();
+    private List<String> attachments = new ArrayList<>();
     private List<PostReply> postReplies = new ArrayList<>();;
 }

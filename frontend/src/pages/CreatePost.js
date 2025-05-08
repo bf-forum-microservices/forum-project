@@ -5,18 +5,17 @@ const CreatePost = () => {
     const [form, setForm] = useState({
         title: '',
         content: '',
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        images: []
     });
     const [errors, setErrors] = useState({});
     const [userInfo, setUserInfo] = useState(null);
     const navigate = useNavigate();
 
-    // 🔹 获取当前用户信息
     useEffect(() => {
         const fetchUserInfo = async () => {
             const token = sessionStorage.getItem('token');
             if (!token) return;
-
             try {
                 const res = await fetch('http://localhost:8080/users/info', {
                     headers: {
@@ -25,17 +24,15 @@ const CreatePost = () => {
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    setUserInfo(data); // 包含 userId 和 firstName/lastName
+                    setUserInfo(data);
                 }
             } catch (err) {
                 console.error('Failed to load user info:', err);
             }
         };
-
         fetchUserInfo();
     }, []);
 
-    // 🔹 表单验证
     const validate = () => {
         const newErrors = {};
         if (!form.title) newErrors.title = 'Title is required';
@@ -44,26 +41,43 @@ const CreatePost = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // 🔹 字段变化处理
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    // 🔹 提交帖子
+    const handleImageChange = (e) => {
+        setForm(prev => ({ ...prev, images: Array.from(e.target.files) }));
+    };
+
+    const uploadFileToS3 = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('password', 'password123');
+
+        try {
+            const res = await fetch('http://localhost:8087/s3/upload', {
+                method: 'POST',
+                body: formData
+            });
+            if (!res.ok) throw new Error('Upload failed');
+            return await res.text(); // 返回 URL
+        } catch (err) {
+            console.error('File upload error:', err);
+            return null;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        if (!userInfo?.active) return alert('Please verify your email first.');
 
-        if (!userInfo) {
-            alert('User info not loaded.');
-            return;
-        }
+        const uploadedImageUrls = [];
 
-        // 新增：判断是否为 inactive 用户
-        if (!userInfo.active) {
-            alert('Please verify your email first.');
-            return;
+        for (const img of form.images) {
+            const url = await uploadFileToS3(img);
+            if (url) uploadedImageUrls.push(url);
         }
 
         const payload = {
@@ -73,7 +87,8 @@ const CreatePost = () => {
             title: form.title,
             content: form.content,
             status: form.status,
-            isArchived: false
+            isArchived: false,
+            images: uploadedImageUrls
         };
 
         const endpoint = form.status === 'DRAFT'
@@ -91,62 +106,52 @@ const CreatePost = () => {
             });
 
             if (!res.ok) throw new Error('Failed to create post');
-
             alert('Post submitted successfully!');
             navigate('/home');
         } catch (err) {
-            console.error('Error:', err);
+            console.error('Submit error:', err);
             alert('Failed to submit post.');
         }
     };
 
-
-    const handleCancel = () => {
-        navigate('/home');
-    };
+    const handleCancel = () => navigate('/home');
 
     return (
         <div className="container mt-5" style={{ maxWidth: '600px' }}>
             <h2 className="mb-4 text-center">Create New Post</h2>
             <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-3">
-                    <label className="form-label">
-                        Title<span className="text-danger">*</span>
-                    </label>
+                    <label className="form-label">Title<span className="text-danger">*</span></label>
                     <input
                         type="text"
                         name="title"
                         className={`form-control ${errors.title ? 'is-invalid' : ''}`}
                         value={form.title}
                         onChange={handleChange}
-                        required
                     />
                     {errors.title && <div className="invalid-feedback">{errors.title}</div>}
                 </div>
 
                 <div className="mb-3">
-                    <label className="form-label">
-                        Content<span className="text-danger">*</span>
-                    </label>
+                    <label className="form-label">Content<span className="text-danger">*</span></label>
                     <textarea
                         name="content"
                         rows="4"
                         className={`form-control ${errors.content ? 'is-invalid' : ''}`}
                         value={form.content}
                         onChange={handleChange}
-                        required
                     />
                     {errors.content && <div className="invalid-feedback">{errors.content}</div>}
                 </div>
 
                 <div className="mb-3">
+                    <label className="form-label">Images (optional)</label>
+                    <input type="file" multiple className="form-control" onChange={handleImageChange} />
+                </div>
+
+                <div className="mb-3">
                     <label className="form-label">Status</label>
-                    <select
-                        name="status"
-                        className="form-control"
-                        value={form.status}
-                        onChange={handleChange}
-                    >
+                    <select name="status" className="form-control" value={form.status} onChange={handleChange}>
                         <option value="PUBLISHED">Publish</option>
                         <option value="DRAFT">Save as Draft</option>
                     </select>

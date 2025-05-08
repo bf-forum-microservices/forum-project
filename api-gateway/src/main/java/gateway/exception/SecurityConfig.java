@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/auth/login", "/users/register", "/users/verify-email", "/contact-us",
                                 "/admin/messages/**","/users/**", "/postandreply/**", "/history/**",
-                                "/actuator/**").permitAll()
+                                "/actuator/**","/s3/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .build();
