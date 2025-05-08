@@ -213,7 +213,7 @@ const UserManagement = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            alert(res.data.message); // e.g., "User promoted to ADMIN"
+            alert(res.data); // e.g., "User promoted to ADMIN"
             refreshUsers();  // Re-fetch user list
         } catch (error) {
             if (error.response) {
