@@ -10,7 +10,11 @@ const Message = () => {
     useEffect(() => {
         const fetchMessage = async () => {
             try {
-                const res = await fetch(`http://localhost:8080/admin/messages/${id}`);
+                const res = await fetch(`http://localhost:8080/admin/messages/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+                    }
+                });
                 if (!res.ok) {
                     const errorText = await res.text();
                     throw new Error(errorText || 'Failed to fetch message.');
@@ -48,7 +52,7 @@ const Message = () => {
                     <p><strong>Content:</strong> {message.message}</p>
                     <p>
                         <strong>Status:</strong>{' '}
-                        <span className={`badge ${message.status === ('RESOLVED' || 'PROCESSED') ? 'bg-success' : 'bg-secondary'}`}>
+                        <span className={`badge ${(message.status === 'RESOLVED' || message.status === 'PROCESSED') ? 'bg-success' : 'bg-secondary'}`}>
                             {message.status}
                         </span>
                     </p>
