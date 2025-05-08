@@ -17,6 +17,7 @@ public class UserDTO {
     private String lastName;
     private String profileImageURL;
     private Boolean active;
+    private Boolean banned;
 
     public UserDTO(User user) {
         this.userId = user.getUserId();
