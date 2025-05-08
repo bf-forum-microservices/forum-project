@@ -282,15 +282,15 @@ class UserServiceTest {
         assertEquals("Email already registered", ex.getMessage());
     }
 
-//    @Test
-//    void requestEmailUpdate_shouldUpdateFieldsAndSave() {
-//        when(userAuthRepository.findByEmail("old@example.com")).thenReturn(Optional.of(user));
-//
-//        userService.requestEmailUpdate("old@example.com", "new@example.com");
-//
-//        assertEquals("new@example.com", user.getPendingEmail());
-//        verify(userAuthRepository).save(user);
-//    }
+    @Test
+    void requestEmailUpdate_shouldUpdateFieldsAndSave() {
+        when(userAuthRepository.findByEmail("old@example.com")).thenReturn(Optional.of(user));
+
+        userService.requestEmailUpdate("old@example.com", "new@example.com");
+
+        assertEquals("new@example.com", user.getPendingEmail());
+        verify(userAuthRepository).save(user);
+    }
 
     @Test
     void processContactMessage_shouldPrintDetails() {
@@ -354,6 +354,41 @@ class UserServiceTest {
         UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO("missing@example.com", "New", "Name", "pass", "url");
         when(userAuthRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
         assertThrows(RuntimeException.class, () -> userService.updateProfile(dto));
+    }
+
+    @Test
+    void getUserInfoById_shouldReturnUserDTO_whenUserExists() {
+        Long userId = 1L;
+        user.setUserId(userId);
+        user.setEmail("user@example.com");
+        user.setType(UserRole.USER);
+        user.setFirstName("First");
+        user.setLastName("Last");
+        user.setProfileImageURL("img-url");
+
+        when(userAuthRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        UserDTO result = userService.getUserInfoById(userId);
+
+        assertNotNull(result);
+        assertEquals(userId, result.getUserId());
+        assertEquals("user@example.com", result.getEmail());
+        assertEquals(UserRole.USER, result.getType());
+        assertEquals("First", result.getFirstName());
+        assertEquals("Last", result.getLastName());
+        assertEquals("img-url", result.getProfileImageURL());
+    }
+
+    @Test
+    void getUserInfoById_shouldThrow_whenUserNotFound() {
+        Long userId = 99L;
+        when(userAuthRepository.findById(userId)).thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            userService.getUserInfoById(userId);
+        });
+
+        assertEquals("User not found with id: 99", ex.getMessage());
     }
 
 }
