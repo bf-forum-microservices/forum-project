@@ -14,7 +14,7 @@ const UserHome = () => {
     // 获取当前用户角色和信息
     useEffect(() => {
         const role = sessionStorage.getItem('role');
-        setIsAdmin(role === 'ADMIN');
+        setIsAdmin(role === 'ADMIN' || role === 'SUPER_ADMIN');
 
         const fetchCurrentUser = async () => {
             try {
@@ -130,13 +130,13 @@ const UserHome = () => {
                 <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
                     Sort by Date ({sortOrder === 'asc' ? '⬆️' : '⬇️'})
                 </button>
-                {!isAdmin && (
+                {isUserLoaded && (
                     <>
                         <button
                             onClick={() => {
-                                if (isUserLoaded && userInfo?.active) {
+                                if (userInfo?.active) {
                                     navigate('/create-post');
-                                } else if (isUserLoaded) {
+                                } else {
                                     alert('Please verify your email first.');
                                 }
                             }}
@@ -145,9 +145,9 @@ const UserHome = () => {
                         </button>
 
                         <button onClick={() => navigate('/profile')}>View My Profile</button>
-
                     </>
                 )}
+
             </div>
 
             <ul className="post-list">

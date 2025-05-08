@@ -34,9 +34,6 @@ const Navbar = () => {
                         <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>My Profile</NavLink>
                     )}
                     <NavLink to="/contactus" className={({ isActive }) => isActive ? "active" : ""}>Contact Admin</NavLink>
-                    {isAuthenticated() &&
-                        (<NavLink to="/posts/123" className={({ isActive }) => isActive ? "active" : ""}>Post Detail</NavLink>
-                    )}
                     {isAdmin() && (
                         <NavLink to="/messages" className={({ isActive }) => isActive ? "active" : ""}>Messages</NavLink>
                     )}

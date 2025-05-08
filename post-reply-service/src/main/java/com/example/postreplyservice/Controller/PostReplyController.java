@@ -102,12 +102,17 @@ public class PostReplyController {
     @GetMapping("/posts/top/{userId}")
     public List<Post> getTop3PostsByReplyCount(@PathVariable Long userId) {
         return postRepository.findByUserId(userId).stream()
-                .filter(post -> post.getPostReplies() != null)
+                .filter(post ->
+                        "PUBLISHED".equalsIgnoreCase(post.getStatus()) &&
+                                !Boolean.TRUE.equals(post.getIsArchived()) &&
+                                post.getPostReplies() != null
+                )
                 .sorted((p1, p2) -> Integer.compare(
                         p2.getPostReplies().size(), p1.getPostReplies().size()))
                 .limit(3)
                 .toList();
     }
+
 
     // Admin 获取所有帖子
     @GetMapping("/admin/userAllposts")
