@@ -9,6 +9,8 @@ import com.forum.userservice.repository.EmailPublisher;
 import com.forum.userservice.repository.UserAuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -181,6 +183,7 @@ public class UserService {
         dto.setProfileImageURL(user.getProfileImageURL());
         dto.setActive(user.isActive());
         dto.setBanned(user.isBanned());
+        dto.setDateJoined(user.getDateJoined());
 
         return dto;
     }
@@ -202,6 +205,7 @@ public class UserService {
         dto.setProfileImageURL(user.getProfileImageURL());
         dto.setActive(user.isActive());
         dto.setBanned(user.isBanned());
+        dto.setDateJoined(user.getDateJoined());
 
         return dto;
     }
@@ -216,9 +220,10 @@ public class UserService {
         // TODO: use emailPublisher.sendContactEmail(email, subject, message); if RabbitMQ setup
     }
 
+    @Cacheable("allUsers")
     public List<UserDTO> getAllUserInfo() {
         List<User> users = userAuthRepository.findAll();
-
+        System.out.println("⏳ Fetching users from DB...");
         return users.stream().map(user -> {
             UserDTO dto = new UserDTO();
             dto.setUserId(user.getUserId());
@@ -229,9 +234,12 @@ public class UserService {
             dto.setProfileImageURL(user.getProfileImageURL());
             dto.setActive(user.isActive());
             dto.setBanned(user.isBanned());
+            dto.setDateJoined(user.getDateJoined());
             return dto;
         }).collect(Collectors.toList());
     }
+
+    @CacheEvict(value = "allUsers", allEntries = true)
     public boolean banUserById(Long userId) {
         Optional<User> userOpt = userAuthRepository.findById(userId);
         if (userOpt.isEmpty()) return false;
@@ -243,7 +251,7 @@ public class UserService {
         userAuthRepository.save(user);
         return true;
     }
-
+    @CacheEvict(value = "allUsers", allEntries = true)
     public boolean activeUserById(Long userId) {
         Optional<User> userOpt = userAuthRepository.findById(userId);
         if (userOpt.isEmpty()) return false;
@@ -256,6 +264,7 @@ public class UserService {
         return true;
     }
 
+    @CacheEvict(value = "allUsers", allEntries = true)
     public boolean promoteToAdmin(Long userId) {
         Optional<User> userOpt = userAuthRepository.findById(userId);
         if (userOpt.isEmpty()) return false;

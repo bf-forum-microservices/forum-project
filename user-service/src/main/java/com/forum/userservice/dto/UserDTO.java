@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.forum.userservice.entity.User;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +20,7 @@ public class UserDTO {
     private String profileImageURL;
     private Boolean active;
     private Boolean banned;
+    private LocalDateTime dateJoined;
 
     public UserDTO(User user) {
         this.userId = user.getUserId();
