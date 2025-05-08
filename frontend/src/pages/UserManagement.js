@@ -251,7 +251,8 @@ const UserManagement = () => {
                     <th>Profile</th>
                     <th>Email</th>
                     <th>Name</th>
-                    <th>Role</th>
+                    <th>Date Joined</th>
+                    <th>Type</th>
                     <th>Banned</th>
                     <th>Actions</th>
 
@@ -270,6 +271,7 @@ const UserManagement = () => {
                         </td>
                         <td>{user.email}</td>
                         <td>{user.firstName} {user.lastName}</td>
+                        <td>{user.dateJoined}</td>
                         <td>{user.type}</td>
                         <td>
                               <span className={user.banned ? 'badge-banned' : 'badge-active'}>

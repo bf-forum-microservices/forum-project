@@ -284,9 +284,11 @@ const UserProfile = () => {
                     </form>
                 ) : (
                     <>
-                        <p><strong>Full Name:</strong> {userInfo.firstName} {userInfo.lastName}</p>
+                        <p><strong>First Name:</strong> {userInfo.firstName} </p>
+                        <p><strong>Last Name:</strong> {userInfo.lastName}</p>
                         <p><strong>Email:</strong> {userInfo.email}</p>
                         <p><strong>Role:</strong> {userInfo.type}</p>
+                        <p><strong>Registration date:</strong> {userInfo.dateJoined}</p>
                         <button onClick={() => setEditMode(true)}>Edit Profile</button>
                         <button onClick={() => navigate('/myposts')}>My Post</button>
                     </>

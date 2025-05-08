@@ -23,7 +23,7 @@
         </processorPath>
         <module name="aws-storage-service" />
       </profile>
-      <profile name="Annotation profile for message-service" enabled="true">
+      <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
