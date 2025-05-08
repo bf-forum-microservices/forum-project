@@ -11,7 +11,6 @@ import java.util.UUID;
 public class PostReply {
     private String replyId = UUID.randomUUID().toString();
     private Long userId;
-    private String userName;
     private String comment;
     private Boolean isActive;
     private Date dateCreated;

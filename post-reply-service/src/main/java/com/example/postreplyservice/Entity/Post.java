@@ -16,7 +16,6 @@ public class Post {
     private String postId = UUID.randomUUID().toString();
 
     private Long userId;
-    private String userName;
     private String title;
     private String content;
     private Boolean isArchived;

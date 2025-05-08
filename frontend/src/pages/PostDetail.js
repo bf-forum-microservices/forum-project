@@ -9,13 +9,13 @@ const PostDetail = () => {
     const [subReplyContent, setSubReplyContent] = useState({});
     const [error, setError] = useState('');
     const [userInfo, setUserInfo] = useState(null);
+    const [avatarMap, setAvatarMap] = useState({});
 
     const getAuthHeaders = () => ({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
     });
 
-    // 🔹 获取当前用户信息
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -23,6 +23,7 @@ const PostDetail = () => {
                     headers: {
                         Authorization: `Bearer ${sessionStorage.getItem('token')}`,
                     },
+                    headers: getAuthHeaders(),
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -32,11 +33,9 @@ const PostDetail = () => {
                 console.error('Failed to fetch user info:', err);
             }
         };
-
         fetchUserInfo();
     }, []);
 
-    // 🔹 获取帖子详情和回复
     useEffect(() => {
         fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
             method: 'GET',
@@ -56,9 +55,42 @@ const PostDetail = () => {
             });
     }, [postId]);
 
-    // 🔹 提交一级回复
+    const fetchUserInfoById = async (userId) => {
+        if (avatarMap[userId]) return;
+
+        try {
+            const res = await fetch(`http://localhost:8080/users/infoByUserId/${userId}`, {
+                headers: getAuthHeaders(),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setAvatarMap(prev => ({
+                    ...prev,
+                    [userId]: {
+                        userName: `${data.firstName} ${data.lastName}`,
+                        profileImageURL: data.profileImageURL
+                    }
+                }));
+            }
+        } catch (err) {
+            console.error(`Failed to load avatar for user ${userId}:`, err);
+        }
+    };
+
+    useEffect(() => {
+        if (post) fetchUserInfoById(post.userId);
+        replies.forEach(reply => {
+            fetchUserInfoById(reply.userId);
+            reply.subReplies?.forEach(sub => fetchUserInfoById(sub.userId));
+        });
+    }, [post, replies]);
+
     const handleReply = async () => {
-        if (!replyContent.trim() || !userInfo) return;
+        if (!replyContent.trim()) return;
+        if (!userInfo || !userInfo.active) {
+            alert("Your account is inactive. You cannot reply.");
+            return;
+        }
 
         try {
             const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
@@ -67,7 +99,7 @@ const PostDetail = () => {
                 body: JSON.stringify({
                     comment: replyContent,
                     userId: userInfo.userId,
-                    userName: `${userInfo.firstName} ${userInfo.lastName}`,
+                    userName: `${userInfo.firstName} ${userInfo.lastName}`
                 }),
             });
 
@@ -80,10 +112,13 @@ const PostDetail = () => {
         }
     };
 
-    // 🔹 提交子回复
     const handleSubReply = async (replyId) => {
         const content = subReplyContent[replyId];
-        if (!content?.trim() || !userInfo) return;
+        if (!content?.trim()) return;
+        if (!userInfo || !userInfo.active) {
+            alert("Your account is inactive. You cannot reply.");
+            return;
+        }
 
         try {
             const response = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
@@ -92,7 +127,7 @@ const PostDetail = () => {
                 body: JSON.stringify({
                     comment: content,
                     userId: userInfo.userId,
-                    userName: `${userInfo.firstName} ${userInfo.lastName}`,
+                    userName: `${userInfo.firstName} ${userInfo.lastName}`
                 }),
             });
 
@@ -112,7 +147,20 @@ const PostDetail = () => {
         <div className="post-detail" style={{ padding: "20px" }}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
-            <p><strong>By:</strong> {post.userName || `User ${post.userId}`}</p>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "10px 0" }}>
+                {avatarMap[post.userId]?.profileImageURL && (
+                    <img
+                        src={avatarMap[post.userId].profileImageURL}
+                        alt="author-avatar"
+                        width={50}
+                        height={50}
+                        style={{ borderRadius: "50%" }}
+                    />
+                )}
+                <p><strong>By:</strong> {avatarMap[post.userId]?.userName || `User ${post.userId}`}</p>
+            </div>
+
             <p>Created: {new Date(post.dateCreated).toLocaleString()}</p>
             <p>Updated: {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -143,14 +191,38 @@ const PostDetail = () => {
             <ul>
                 {replies.map(reply => (
                     <li key={reply.replyId}>
-                        <p><strong>{reply.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "5px" }}>
+                            {avatarMap[reply.userId]?.profileImageURL && (
+                                <img
+                                    src={avatarMap[reply.userId].profileImageURL}
+                                    alt="avatar"
+                                    width={40}
+                                    height={40}
+                                    style={{ borderRadius: "50%" }}
+                                />
+                            )}
+                            <p><strong>{avatarMap[reply.userId]?.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
+                        </div>
+
                         <ul>
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
-                                    <strong>{sub.userName || `User ${sub.userId}`}</strong>: {sub.comment}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "3px" }}>
+                                        {avatarMap[sub.userId]?.profileImageURL && (
+                                            <img
+                                                src={avatarMap[sub.userId].profileImageURL}
+                                                alt="avatar"
+                                                width={35}
+                                                height={35}
+                                                style={{ borderRadius: "50%" }}
+                                            />
+                                        )}
+                                        <strong>{avatarMap[sub.userId]?.userName || `User ${sub.userId}`}</strong>: {sub.comment}
+                                    </div>
                                 </li>
                             ))}
                         </ul>
+
                         <input
                             value={subReplyContent[reply.replyId] || ''}
                             onChange={(e) =>
@@ -158,20 +230,26 @@ const PostDetail = () => {
                             }
                             placeholder="Reply to this reply..."
                         />
-                        <button onClick={() => handleSubReply(reply.replyId)}>Send Sub-reply</button>
+                        <button onClick={() => handleSubReply(reply.replyId)} disabled={!userInfo?.active}>
+                            Send Sub-reply
+                        </button>
                     </li>
                 ))}
             </ul>
 
             <hr />
             <h4>Write a Reply:</h4>
+            {!userInfo?.active && (
+                <p style={{ color: 'red' }}>You need to verify your email first. </p>
+            )}
             <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder="Write your reply..."
+                disabled={!userInfo?.active}
             />
             <br />
-            <button onClick={handleReply}>Reply</button>
+            <button onClick={handleReply} disabled={!userInfo?.active}>Reply</button>
         </div>
     );
 };

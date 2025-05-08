@@ -16,6 +16,7 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String profileImageURL;
+    private Boolean active;
 
     public UserDTO(User user) {
         this.userId = user.getUserId();

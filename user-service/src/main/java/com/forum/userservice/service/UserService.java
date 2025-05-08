@@ -170,6 +170,7 @@ public class UserService {
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setProfileImageURL(user.getProfileImageURL());
+        dto.setActive(user.isActive());
 
         return dto;
     }
@@ -189,6 +190,7 @@ public class UserService {
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setProfileImageURL(user.getProfileImageURL());
+        dto.setActive(user.isActive());
 
         return dto;
     }

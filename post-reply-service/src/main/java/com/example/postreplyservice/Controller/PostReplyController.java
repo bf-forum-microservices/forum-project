@@ -111,9 +111,16 @@ public class PostReplyController {
 
     // Admin 获取所有帖子
     @GetMapping("/admin/userAllposts")
-    public List<Post> getAllPostsForAdmin() {
-        return postRepository.findAll();
+    public List<Post> getAllNonDraftPostsForAdmin(@RequestParam String status) {
+        if (status.equalsIgnoreCase("deleted")) {
+            return postRepository.findByIsArchivedTrue();
+        } else {
+            return postRepository.findByStatus(status.toUpperCase()).stream()
+                    .filter(post -> !"DRAFT".equalsIgnoreCase(post.getStatus()))
+                    .toList();
+        }
     }
+
 
     // Admin 禁用帖子
     @PutMapping("/admin/posts/{id}/ban")
