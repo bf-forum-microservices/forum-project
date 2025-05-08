@@ -45,3 +45,12 @@ queue:
   name: email-queue
   exchange: email-exchange
   routing-key: email-routing-key
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, beans, env, httptrace
+  endpoint:
+    health:
+      show-details: always

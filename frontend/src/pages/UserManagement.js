@@ -277,8 +277,9 @@ const UserManagement = () => {
                               </span>
                         </td>
                         <td>
-                            <button onClick={() => handleBan(user.userId)}>Ban</button>
-                            <button onClick={() => handleActivate(user.userId)}>Activate</button>
+                            <button onClick={() => handleBan(user.userId)} disabled={user.type !== 'USER'|| user.banned}>Ban</button>
+                            <button onClick={() => handleActivate(user.userId)} disabled={user.type !== 'USER'|| !user.banned}>Activate</button>
+
                             <button
                                 onClick={() => handlePromote(user.userId)}
                                 disabled={user.type !== 'USER'}

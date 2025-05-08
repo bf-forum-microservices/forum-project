@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/users/**").permitAll()
                 .antMatchers("/users/register", "/users/verify-email", "/contact-us", "/auth/login").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic().disable()
