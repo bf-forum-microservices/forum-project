@@ -288,12 +288,11 @@ const UserProfile = () => {
                         <p><strong>Email:</strong> {userInfo.email}</p>
                         <p><strong>Role:</strong> {userInfo.type}</p>
                         <button onClick={() => setEditMode(true)}>Edit Profile</button>
-                        <button onClick={() => setEmailEditMode(true)}>Change Email</button>
                         <button onClick={() => navigate('/myposts')}>My Post</button>
                     </>
                 )}
 
-                {emailEditMode && (
+                {emailEditMode ? (
                     <form onSubmit={emailStep === 1 ? handleSendVerificationCode : handleVerifyEmailCode}>
                         {emailStep === 1 ? (
                             <>
@@ -310,6 +309,8 @@ const UserProfile = () => {
                         )}
                         <button type="button" onClick={() => { setEmailEditMode(false); setEmailStep(1); }}>Cancel</button>
                     </form>
+                ) : (
+                    <button onClick={() => setEmailEditMode(true)}>Change Email</button>
                 )}
             </div>
 
