@@ -86,7 +86,9 @@ public class UserService {
     }
 
     public ResponseEntity<UserAuthDTO> validateUser(LoginRequestDTO request) {
+
         Optional<User> userOpt = userAuthRepository.findByEmail(request.getEmail());
+
 
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -101,6 +103,9 @@ public class UserService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password.");
         }
+
+        System.out.println("valid");
+
 
         UserAuthDTO userAuthDTO = new UserAuthDTO();
         userAuthDTO.setUserId(user.getUserId());
