@@ -247,4 +247,20 @@ public class UserService {
         return true;
     }
 
+    public boolean promoteToAdmin(Long userId) {
+        Optional<User> userOpt = userAuthRepository.findById(userId);
+        if (userOpt.isEmpty()) return false;
+
+        User user = userOpt.get();
+
+        // Check if already ADMIN or SUPER_ADMIN
+        if (user.getType() == UserRole.ADMIN || user.getType() == UserRole.SUPER_ADMIN) {
+            return false; // Already promoted or not allowed
+        }
+
+        user.setType(UserRole.ADMIN); // Promote
+        userAuthRepository.save(user);
+        return true;
+    }
+
 }
