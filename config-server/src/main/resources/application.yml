@@ -9,7 +9,8 @@ spring:
       server:
         native:
 
-          search-locations: /Users/27373/github/forum-project/config-repo
+          search-locations: /Users/fan/IdeaProjects/forum-team_project/config-repo
+          #/Users/27373/github/forum-project/config-repo
 
           # C:\Users\silas\IdeaProjects\forum-project\config-repo
           #  ..\config-repo
