@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
                 || path.startsWith("/contact")
                 || path.startsWith("/users/register")
                 || path.startsWith("/users/verify-email")
-//                || path.startsWith("/admin/messages")
+                || path.startsWith("/admin/messages/create")
 //                || path.startsWith("/users")
 //                || path.startsWith("/postandreply")
 //                || path.startsWith("/history")
