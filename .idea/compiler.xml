@@ -7,19 +7,20 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="api-gateway" />
-        <module name="history-service" />
         <module name="config-server" />
-        <module name="eureka-server" />
         <module name="post-reply-service" />
         <module name="email-service" />
+        <module name="api-gateway" />
+        <module name="history-service" />
+        <module name="aws-storage-service" />
+        <module name="eureka-server" />
       </profile>
       <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$USER_HOME$/dev/maven/repository/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
         <module name="message-service" />
         <module name="auth-service" />
@@ -31,6 +32,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
       <module name="auth-service" options="-parameters" />
+      <module name="aws-storage-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="email-service" options="-parameters" />
       <module name="eureka-server" options="-parameters" />

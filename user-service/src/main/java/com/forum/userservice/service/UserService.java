@@ -5,6 +5,7 @@ import com.forum.userservice.RabbitMessagePublisher;
 import com.forum.userservice.dto.*;
 import com.forum.userservice.entity.User;
 import com.forum.userservice.exception.ForbiddenException;
+import com.forum.userservice.feign.AwsStorageFeignClient;
 import com.forum.userservice.repository.EmailPublisher;
 import com.forum.userservice.repository.UserAuthRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,8 @@ public class UserService {
 
     private final UserAuthRepository userAuthRepository;
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private AwsStorageFeignClient awsStorageFeignClient;
 
     @Autowired(required = false)
     private EmailPublisher emailPublisher;
@@ -54,9 +57,8 @@ public class UserService {
         newUser.setType(UserRole.USER);
         newUser.setVerificationCode(generate6DigitCode());
             // TODO: upload photos
-//        if (newUser.getProfileImageURL() == null || newUser.getProfileImageURL().isEmpty()) {
-//            newUser.setProfileImageURL("https://your-default-image-url.com/default.jpg");
-//        }
+        String avatarUrl = awsStorageFeignClient.getDefaultAvatar();
+        newUser.setProfileImageURL(avatarUrl);
 
         emailPublisher.sendVerificationEmail(newUser.getEmail(), newUser.getVerificationCode());
 
