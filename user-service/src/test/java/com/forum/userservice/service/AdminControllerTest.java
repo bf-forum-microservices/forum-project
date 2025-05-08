@@ -132,4 +132,63 @@ class AdminControllerTest {
 //        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response);
     }
+
+    @Test
+    void promoteToAdmin_shouldReturnForbidden_whenNotSuperAdmin() {
+        // Given a JWT with role USER
+        String token = "Bearer " + Jwts.builder()
+                .setSubject("test_user")
+                .claim("role", "USER")
+                .setIssuedAt(new Date())
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        // When
+        ResponseEntity<?> response = adminController.promoteToAdmin(token, 123L);
+
+        // Then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertEquals("Not authorized", response.getBody());
+    }
+
+    @Test
+    void promoteToAdmin_shouldReturnBadRequest_whenAlreadyAdmin() {
+        // Given SUPER_ADMIN token
+        String token = "Bearer " + Jwts.builder()
+                .setSubject("super_admin")
+                .claim("role", "SUPER_ADMIN")
+                .setIssuedAt(new Date())
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        when(userService.promoteToAdmin(123L)).thenReturn(false);
+
+        // When
+        ResponseEntity<?> response = adminController.promoteToAdmin(token, 123L);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("User is already ADMIN or SUPER_ADMIN", response.getBody());
+    }
+
+    @Test
+    void promoteToAdmin_shouldReturnOk_whenSuccess() {
+        // Given SUPER_ADMIN token
+        String token = "Bearer " + Jwts.builder()
+                .setSubject("super_admin")
+                .claim("role", "SUPER_ADMIN")
+                .setIssuedAt(new Date())
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        when(userService.promoteToAdmin(123L)).thenReturn(true);
+
+        // When
+        ResponseEntity<?> response = adminController.promoteToAdmin(token, 123L);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("User promoted to ADMIN", response.getBody());
+    }
+
 }
