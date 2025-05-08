@@ -10,5 +10,6 @@
     <file url="file://$PROJECT_DIR$/message-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/post-reply-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../forum-project/aws-storage-service/src/main/java" charset="UTF-8" />
   </component>
 </project>
