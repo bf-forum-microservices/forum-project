@@ -12,5 +12,4 @@ aws:
   s3:
     bucket: happypathbucket123
     region: us-east-2
-    access-key: AKIAXZMEDYBZKSGKGMJ6
-    secret-key: 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
+    # need two other keys
