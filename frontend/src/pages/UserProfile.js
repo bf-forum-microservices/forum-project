@@ -147,6 +147,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Pages.css';
+import { useNavigate } from 'react-router-dom';
 
 const UserProfile = () => {
     const [userInfo, setUserInfo] = useState(null);
@@ -162,6 +163,7 @@ const UserProfile = () => {
     const [newEmail, setNewEmail] = useState('');
     const [emailVerificationCode, setEmailVerificationCode] = useState('');
     const [emailStep, setEmailStep] = useState(1); // 1 = input new email, 2 = verify code
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
@@ -303,7 +305,10 @@ const UserProfile = () => {
                     <button type="button" onClick={() => { setEmailEditMode(false); setEmailStep(1); }}>Cancel</button>
                 </form>
             ) : (
+                <>
                 <button onClick={() => setEmailEditMode(true)}>Change Email</button>
+                <button onClick={() => navigate('/myposts')}>My Post</button>
+               </>
             )}
 
 
