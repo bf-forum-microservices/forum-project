@@ -29,6 +29,11 @@ spring:
           predicates:
             - Path=/history/**
 
+        - id: aws-storage-service
+          uri: lb://aws-storage-service
+          predicates:
+            - Path=/s3/**
+
       globalcors:
         corsConfigurations:
           '[/**]':

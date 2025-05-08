@@ -168,22 +168,12 @@ const PostDetail = () => {
                     <h4>Images:</h4>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         {post.images.map((img, idx) => (
-                            <img key={idx} src={`/${img}`} alt={img} width={120} />
+                            <img key={idx} src={img} alt={`image-${idx}`} width={120} />
                         ))}
                     </div>
                 </div>
             )}
-
-            {post.attachments?.length > 0 && (
-                <div>
-                    <h4>Attachments:</h4>
-                    <ul>
-                        {post.attachments.map((file, idx) => (
-                            <li key={idx}><a href={`/${file}`} download>{file}</a></li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+            
 
             <hr />
             <h3>Replies</h3>

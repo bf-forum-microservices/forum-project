@@ -25,10 +25,18 @@ public class PostReplyController {
     public Post createPost(@RequestBody Post post) {
         post.setDateCreated(new Date());
         post.setDateModified(new Date());
-        post.setIsArchived(false);
-        post.setStatus("PUBLISHED");
+
+        // 如果前端没传 isArchived 或 status，才设置默认值
+        if (post.getIsArchived() == null) {
+            post.setIsArchived(false);
+        }
+        if (post.getStatus() == null) {
+            post.setStatus("PUBLISHED");
+        }
+
         return postRepository.save(post);
     }
+
 
     @GetMapping("/posts/published")
     public List<Post> getAllPublishedPosts() {
