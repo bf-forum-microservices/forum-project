@@ -13,13 +13,16 @@ const PostDetail = () => {
 
     const getAuthHeaders = () => ({
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
     });
 
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
                 const res = await fetch('http://localhost:8080/users/info', {
+                    headers: {
+                        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+                    },
                     headers: getAuthHeaders(),
                 });
                 if (res.ok) {
