@@ -7,8 +7,14 @@ const AdminMessages = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    console.log(sessionStorage.getItem('token'));
+
     useEffect(() => {
-        fetch('http://localhost:8080/admin/messages/all') //
+        fetch('http://localhost:8080/admin/messages/all', {
+            headers: {
+                Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+            }
+        }) //
             .then((res) => res.json())
             .then((data) => setMessages(data))
             .catch((err) => console.error('Failed to load messages:', err));
@@ -18,7 +24,10 @@ const AdminMessages = () => {
         setError(null);
         try {
             const res = await fetch(`http://localhost:8080/admin/messages/${id}/status?status=processed`, {
-                method: 'PATCH'
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+                }
             });
 
             if (!res.ok) {
@@ -42,7 +51,10 @@ const AdminMessages = () => {
     const markAsResolved = async (id) => {
         try {
             const res = await fetch(`http://localhost:8080/admin/messages/${id}/status?status=resolved`, {
-                method: 'PATCH'
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+                },
             });
 
             if (!res.ok) {
@@ -58,6 +70,29 @@ const AdminMessages = () => {
             );
         } catch (err) {
             const errorMessage = `Error processing message ${id}: ${err.message}`;
+            setError(errorMessage);
+            alert(errorMessage);
+        }
+    };
+
+    const deleteMessage = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:8080/admin/messages/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+                },
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || 'Failed to delete message.');
+            }
+
+            setMessages((prevMessages) => prevMessages.filter((msg) => msg.messageId !== id));
+
+        } catch (err) {
+            const errorMessage = `Error deleting message ${id}: ${err.message}`;
             setError(errorMessage);
             alert(errorMessage);
         }
@@ -99,6 +134,10 @@ const AdminMessages = () => {
                             <button className="admin-btn"
                                     onClick={() => markAsResolved(msg.messageId, msg.status)}>
                                 Mark as Resolved
+                            </button>
+                            <button className="admin-btn"
+                                    onClick={() => deleteMessage(msg.messageId, msg.status)}>
+                                Delete
                             </button>
                         </td>
                     </tr>

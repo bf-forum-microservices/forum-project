@@ -2,5 +2,6 @@ package com.forum.authService.Enum;
 
 public enum UserRole {
     USER,
-    ADMIN
+    ADMIN,
+    SUPER_ADMIN
 }
