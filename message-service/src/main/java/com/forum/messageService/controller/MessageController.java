@@ -71,6 +71,7 @@ public class MessageController {
     public ResponseEntity<?> createMessage(@Valid @RequestBody MessageRequest messageRequest,
                                                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            System.out.println(bindingResult.getAllErrors());
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->
                     errors.put(error.getField(), error.getDefaultMessage()));
