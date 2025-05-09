@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const PostDetailDeleteReplies = () => {
     const { postId } = useParams();
@@ -48,17 +47,8 @@ const PostDetailDeleteReplies = () => {
                 if (!response.ok) throw new Error("Failed to load post details");
 
                 const data = await response.json();
-
-                // 过滤掉 isActive 为 false 的 reply 和 subReply
-                const activeReplies = data.postReplies
-                    .filter(reply => reply.isActive)
-                    .map(reply => ({
-                        ...reply,
-                        subReplies: reply.subReplies.filter(sub => sub.isActive)
-                    }));
-
                 setPost(data);
-                setReplies(activeReplies);
+                setReplies(data.postReplies || []);
             } catch (err) {
                 console.error("Error loading post details:", err);
                 setError("Failed to load post details. Please try again later.");
@@ -68,7 +58,6 @@ const PostDetailDeleteReplies = () => {
         if (postId) fetchPostDetails();
     }, [postId]);
 
-    // 添加回复
     const handleReply = async () => {
         if (!replyContent.trim() || !userInfo) return;
 
@@ -79,24 +68,14 @@ const PostDetailDeleteReplies = () => {
                 body: JSON.stringify({
                     userId: userInfo.userId,
                     comment: replyContent,
-                    isActive: true,
-                    subReplies: []
+                    subReplies: [],
                 }),
             });
 
             if (!response.ok) throw new Error("Failed to post reply");
 
             const updatedPost = await response.json();
-
-            // 仅添加新回复，并过滤掉 isActive 为 false 的回复
-            const activeReplies = updatedPost.postReplies
-                .filter(reply => reply.isActive)
-                .map(reply => ({
-                    ...reply,
-                    subReplies: reply.subReplies.filter(sub => sub.isActive)
-                }));
-
-            setReplies(activeReplies);
+            setReplies(updatedPost.postReplies || []);
             setReplyContent('');
         } catch (err) {
             console.error("Reply failed:", err);
@@ -104,7 +83,6 @@ const PostDetailDeleteReplies = () => {
         }
     };
 
-    // 添加子回复
     const handleSubReply = async (replyId) => {
         const content = subReplyContent[replyId];
         if (!content?.trim() || !userInfo) return;
@@ -116,23 +94,13 @@ const PostDetailDeleteReplies = () => {
                 body: JSON.stringify({
                     userId: userInfo.userId,
                     comment: content,
-                    isActive: true
                 }),
             });
 
             if (!response.ok) throw new Error("Failed to post sub-reply");
 
             const updatedPost = await response.json();
-
-            // 仅更新目标 reply，并过滤掉 isActive 为 false 的 sub-replies
-            const activeReplies = updatedPost.postReplies
-                .filter(reply => reply.isActive)
-                .map(reply => ({
-                    ...reply,
-                    subReplies: reply.subReplies.filter(sub => sub.isActive)
-                }));
-
-            setReplies(activeReplies);
+            setReplies(updatedPost.postReplies || []);
             setSubReplyContent(prev => ({ ...prev, [replyId]: '' }));
         } catch (err) {
             console.error("Sub-reply failed:", err);
@@ -140,7 +108,6 @@ const PostDetailDeleteReplies = () => {
         }
     };
 
-    // 删除回复
     const handleDeleteReply = async (replyId) => {
         try {
             const response = await fetch(`http://localhost:8080/postandreply/posts/replies/${replyId}`, {
@@ -150,7 +117,6 @@ const PostDetailDeleteReplies = () => {
 
             if (!response.ok) throw new Error("Failed to delete reply");
 
-            // 从前端删除该 reply
             setReplies(prevReplies => prevReplies.filter(reply => reply.replyId !== replyId));
         } catch (err) {
             console.error("Failed to delete reply:", err);
@@ -158,7 +124,6 @@ const PostDetailDeleteReplies = () => {
         }
     };
 
-    // 删除子回复
     const handleDeleteSubReply = async (subReplyId) => {
         try {
             const response = await fetch(`http://localhost:8080/postandreply/posts/replies/sub-replies/${subReplyId}`, {
@@ -168,7 +133,6 @@ const PostDetailDeleteReplies = () => {
 
             if (!response.ok) throw new Error("Failed to delete sub-reply");
 
-            // 从前端删除该 subReply
             setReplies(prevReplies =>
                 prevReplies.map(reply => ({
                     ...reply,
@@ -186,7 +150,6 @@ const PostDetailDeleteReplies = () => {
 
     return (
         <div className="post-detail" style={{ padding: "20px" }}>
-            {/* 返回 My Posts 按钮 */}
             <button
                 onClick={() => navigate('/myposts')}
                 style={{
@@ -203,6 +166,28 @@ const PostDetailDeleteReplies = () => {
             </button>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
+
+            {post.images?.length > 0 && (
+                <div style={{ marginTop: '15px' }}>
+                    <h4>Images:</h4>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {post.images.map((img, idx) => (
+                            <img
+                                key={idx}
+                                src={img}
+                                alt={`post-img-${idx}`}
+                                style={{
+                                    width: '180px',
+                                    height: 'auto',
+                                    borderRadius: '6px',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <p><strong>Status:</strong> {post.status}</p>
             <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
             <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
@@ -218,7 +203,7 @@ const PostDetailDeleteReplies = () => {
                         </button>
 
                         <ul style={{ marginLeft: "20px" }}>
-                            {reply.subReplies.map(sub => (
+                            {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
                                     <strong>User {sub.userId}:</strong> {sub.comment}
                                     <button onClick={() => handleDeleteSubReply(sub.subReplyId)} style={{ marginLeft: "10px", color: "red" }}>
