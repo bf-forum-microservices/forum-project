@@ -91,10 +91,12 @@ const UserHome = () => {
     };
 
     useEffect(() => {
-        posts.forEach(post => {
-            fetchUserInfo(post.userId);
-        });
-    }, [posts]);
+        if (userInfo) {
+            posts.forEach(post => {
+                fetchUserInfo(post.userId);
+            });
+        }
+    }, [posts, userInfo]);
 
     const handleAction = (postId, action) => {
         const url = `http://localhost:8080/postandreply/admin/posts/${postId}/${action}`;
@@ -113,6 +115,34 @@ const UserHome = () => {
         const dateB = new Date(b.dateCreated);
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
+
+    const saveViewHistory = async (postId) => {
+        try {
+            const userId = userInfo?.userId;
+            if (!userId) return;
+
+            // Record the post view in the history database
+            const response = await fetch(`http://localhost:8080/history/${userId}?postId=${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                console.log('Post view recorded successfully');
+                // Navigate to the post detail page after recording the view
+                navigate(`/posts/${postId}`);
+            } else {
+                console.error('Failed to record post view:', response.status);
+                alert('Failed to record post view. Please try again.');
+            }
+        } catch (err) {
+            console.error('Error recording post view:', err);
+            alert('An error occurred. Please try again later.');
+        }
+    };
 
     return (
         <div className="user-home">
@@ -154,7 +184,10 @@ const UserHome = () => {
                 {sortedPosts.map(post => (
                     <li key={post.postId} className="post-item">
                         <strong
-                            onClick={() => navigate(`/posts/${post.postId}`)}
+                            onClick={() => {
+                                saveViewHistory(post.postId);
+                                navigate(`/posts/${post.postId}`);
+                            }}
                             style={{ cursor: 'pointer' }}>
                             {post.title || '(No Title)'}
                         </strong>
