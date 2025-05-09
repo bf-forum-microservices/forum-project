@@ -165,6 +165,8 @@ const UserProfile = () => {
     const [emailStep, setEmailStep] = useState(1); // 1 = input new email, 2 = verify code
     const [topPosts, setTopPosts] = useState([]);
     const navigate = useNavigate();
+    const [viewHistory, setViewHistory] = useState([]);
+
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
@@ -192,6 +194,23 @@ const UserProfile = () => {
                     .then(response => setTopPosts(response.data))
                     .catch(err => console.error('Failed to fetch top 3 posts:', err));
 
+                // Fetch user view history (only published posts)
+                axios.get(`http://localhost:8080/history/${res.data.userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                    .then(historyRes => {
+                        const publishedHistory = historyRes.data
+                            .filter(item => item.postId)  // Filter out empty postId entries
+                            .map(item => ({
+                                ...item,
+                                // Extract only the post ID, removing the "/posts/" prefix if present
+                                postId: item.postId.startsWith("/posts/")
+                                    ? item.postId.split("/posts/")[1]
+                                    : item.postId
+                            }));
+                        setViewHistory(publishedHistory);
+                    })
+                    .catch(err => console.error('Failed to fetch view history:', err));
             })
             .catch(() => {
                 setError('Failed to load profile.');
@@ -334,6 +353,25 @@ const UserProfile = () => {
                     )}
                 </div>
             </div>
+
+            <div className="view-history-wrapper">
+                <div className="view-history-container">
+                    <h3>View History</h3>
+                    {viewHistory.length > 0 ? (
+                        viewHistory.map(history => (
+                            <div key={history.historyId} className="post-card">
+                                <h4 className="clickable-title" onClick={() => handlePostClick(history.postId)}>
+                                    Post ID: {history.postId}
+                                </h4>
+                                <p><strong>Viewed On:</strong> {new Date(history.viewDate).toLocaleString()}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No viewed posts to display.</p>
+                    )}
+                </div>
+            </div>
+
         </div>
     );
 };
