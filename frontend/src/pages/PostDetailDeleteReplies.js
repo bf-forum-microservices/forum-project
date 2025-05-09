@@ -16,7 +16,6 @@ const PostDetailDeleteReplies = () => {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
     });
 
-    // 获取用户信息
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -35,7 +34,6 @@ const PostDetailDeleteReplies = () => {
         fetchUserInfo();
     }, []);
 
-    // 获取帖子详情
     useEffect(() => {
         const fetchPostDetails = async () => {
             try {
@@ -148,6 +146,8 @@ const PostDetailDeleteReplies = () => {
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!post) return <p>Loading...</p>;
 
+    const isReadOnly = post.isArchived || post.status === "BANNED";
+
     return (
         <div className="post-detail" style={{ padding: "20px" }}>
             <button
@@ -164,6 +164,18 @@ const PostDetailDeleteReplies = () => {
             >
                 ← Back to My Posts
             </button>
+
+            {post.isArchived && (
+                <p style={{ color: 'red', fontWeight: 'bold' }}>
+                    ⚠️ This post has been deleted. You can only view it.
+                </p>
+            )}
+            {post.status === "BANNED" && (
+                <p style={{ color: 'orange', fontWeight: 'bold' }}>
+                    ⚠️ This post has been banned by an admin. You can only view it.
+                </p>
+            )}
+
             <h2>{post.title}</h2>
             <p>{post.content}</p>
 
@@ -188,7 +200,7 @@ const PostDetailDeleteReplies = () => {
                 </div>
             )}
 
-            <p><strong>Status:</strong> {post.status}</p>
+            <p><strong>Status:</strong> {post.isArchived ? "DELETED" : post.status}</p>
             <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
             <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -198,42 +210,58 @@ const PostDetailDeleteReplies = () => {
                 {replies.map(reply => (
                     <li key={reply.replyId} style={{ marginBottom: "15px" }}>
                         <strong>User {reply.userId}:</strong> {reply.comment}
-                        <button onClick={() => handleDeleteReply(reply.replyId)} style={{ marginLeft: "10px", color: "red" }}>
-                            Delete Reply
-                        </button>
+                        {!isReadOnly && (
+                            <button onClick={() => handleDeleteReply(reply.replyId)} style={{ marginLeft: "10px", color: "red" }}>
+                                Delete Reply
+                            </button>
+                        )}
 
                         <ul style={{ marginLeft: "20px" }}>
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
                                     <strong>User {sub.userId}:</strong> {sub.comment}
-                                    <button onClick={() => handleDeleteSubReply(sub.subReplyId)} style={{ marginLeft: "10px", color: "red" }}>
-                                        Delete Sub-reply
-                                    </button>
+                                    {!isReadOnly && (
+                                        <button onClick={() => handleDeleteSubReply(sub.subReplyId)} style={{ marginLeft: "10px", color: "red" }}>
+                                            Delete Sub-reply
+                                        </button>
+                                    )}
                                 </li>
                             ))}
                         </ul>
 
-                        <input
-                            value={subReplyContent[reply.replyId] || ''}
-                            onChange={(e) =>
-                                setSubReplyContent({ ...subReplyContent, [reply.replyId]: e.target.value })
-                            }
-                            placeholder="Reply to this reply..."
-                        />
-                        <button onClick={() => handleSubReply(reply.replyId)}>Send Sub-reply</button>
+                        {!isReadOnly && (
+                            <>
+                                <input
+                                    value={subReplyContent[reply.replyId] || ''}
+                                    onChange={(e) =>
+                                        setSubReplyContent({ ...subReplyContent, [reply.replyId]: e.target.value })
+                                    }
+                                    placeholder="Reply to this reply..."
+                                />
+                                <button onClick={() => handleSubReply(reply.replyId)}>Send Sub-reply</button>
+                            </>
+                        )}
                     </li>
                 ))}
             </ul>
 
             <hr />
             <h4>Add a Reply:</h4>
-            <textarea
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Write your reply..."
-            />
-            <br />
-            <button onClick={handleReply}>Send Reply</button>
+            {isReadOnly ? (
+                <p style={{ color: "gray" }}>
+                    <i>{post.isArchived ? "This post is deleted" : "This post is banned"}. You cannot reply.</i>
+                </p>
+            ) : (
+                <>
+                    <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Write your reply..."
+                    />
+                    <br />
+                    <button onClick={handleReply}>Send Reply</button>
+                </>
+            )}
         </div>
     );
 };

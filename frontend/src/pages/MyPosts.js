@@ -15,6 +15,9 @@ const MyPosts = () => {
     const [editImages, setEditImages] = useState([]);
     const [editStatus, setEditStatus] = useState('');
     const navigate = useNavigate();
+    const [bannedRawPosts, setBannedRawPosts] = useState([]);
+
+
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
@@ -32,8 +35,7 @@ const MyPosts = () => {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(response => {
-                    const activePosts = response.data.filter(post => !post.isArchived);
-                    setPublishedPosts(activePosts);
+                    setPublishedPosts(response.data); // 不再过滤 isArchived
                 })
                 .catch(err => {
                     console.error("Failed to load published posts:", err);
@@ -44,13 +46,23 @@ const MyPosts = () => {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(response => {
-                    const activeDrafts = response.data.filter(post => !post.isArchived);
-                    setDraftPosts(activeDrafts);
+                    setDraftPosts(response.data); // 不再过滤 isArchived
                 })
                 .catch(err => {
                     console.error("Failed to load draft posts:", err);
                     setError('Failed to load draft posts.');
                 });
+
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=banned`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+                .then(response => {
+                    setBannedRawPosts(response.data);
+                })
+                .catch(err => {
+                    console.error("Failed to load banned posts:", err);
+                });
+
 
         } catch (error) {
             console.error("Invalid Token:", error);
@@ -130,8 +142,7 @@ const MyPosts = () => {
         })
             .then(() => {
                 alert("Post deleted successfully!");
-                setPublishedPosts(prevPosts => prevPosts.filter(post => post.postId !== postId));
-                setDraftPosts(prevPosts => prevPosts.filter(post => post.postId !== postId));
+                window.location.reload(); // 简单方式重新加载数据
             })
             .catch(err => {
                 console.error("Failed to delete post:", err);
@@ -143,6 +154,17 @@ const MyPosts = () => {
         navigate(`/myposts/${postId}`);
     };
 
+    const filteredPublished = publishedPosts.filter(
+        post => !post.isArchived && post.status === "PUBLISHED"
+    );
+    const filteredDrafts = draftPosts.filter(
+        post => !post.isArchived && post.status === "DRAFT"
+    );
+    const bannedPosts = bannedRawPosts.filter(post => !post.isArchived);
+
+    const deletedPosts = [...publishedPosts, ...draftPosts].filter(post => post.isArchived);
+
+
     if (error) return <div className="error-message">{error}</div>;
 
     return (
@@ -151,9 +173,9 @@ const MyPosts = () => {
 
             <div className="posts-section">
                 <h3>Published Posts</h3>
-                {publishedPosts.length > 0 ? (
+                {filteredPublished.length > 0 ? (
                     <ul className="post-list">
-                        {publishedPosts.map(post => (
+                        {filteredPublished.map(post => (
                             <li key={post.postId} className="post-item">
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
@@ -170,9 +192,9 @@ const MyPosts = () => {
 
             <div className="posts-section">
                 <h3>Draft Posts</h3>
-                {draftPosts.length > 0 ? (
+                {filteredDrafts.length > 0 ? (
                     <ul className="post-list">
-                        {draftPosts.map(post => (
+                        {filteredDrafts.map(post => (
                             <li key={post.postId} className="post-item">
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
@@ -186,6 +208,43 @@ const MyPosts = () => {
                     <p>No draft posts.</p>
                 )}
             </div>
+
+            <div className="posts-section">
+                <h3>Deleted Posts</h3>
+                {deletedPosts.length > 0 ? (
+                    <ul className="post-list">
+                        {deletedPosts.map(post => (
+                            <li key={post.postId} className="post-item">
+                                <h4>{post.title}</h4>
+                                <p>{post.content}</p>
+                                <p style={{ color: 'gray' }}><i>This post has been deleted.</i></p>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No deleted posts.</p>
+                )}
+            </div>
+
+            <div className="posts-section">
+                <h3>Banned Posts</h3>
+                {bannedPosts.length > 0 ? (
+                    <ul className="post-list">
+                        {bannedPosts.map(post => (
+                            <li key={post.postId} className="post-item">
+                                <h4>{post.title}</h4>
+                                <p>{post.content}</p>
+                                <p style={{ color: 'orange' }}><i>This post has been banned by an admin.</i></p>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No banned posts.</p>
+                )}
+            </div>
+
 
             {editPost && (
                 <div className="edit-modal">

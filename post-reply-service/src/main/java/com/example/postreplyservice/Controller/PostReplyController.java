@@ -40,8 +40,9 @@ public class PostReplyController {
 
     @GetMapping("/posts/published")
     public List<Post> getAllPublishedPosts() {
-        return postRepository.findByStatus("PUBLISHED");
+        return postRepository.findByStatusAndIsArchivedFalse("PUBLISHED");
     }
+
 
     // 创建草稿帖子
     @PostMapping("/draftPost")

@@ -72,6 +72,8 @@ const PostDetail = () => {
         });
     }, [post, replies]);
 
+    const isReadOnly = post?.status !== 'PUBLISHED' || post?.isArchived;
+
     const handleReply = async () => {
         if (!replyContent.trim()) return;
         try {
@@ -161,7 +163,7 @@ const PostDetail = () => {
                 </div>
             )}
 
-            <p><strong>Status:</strong> {post.status}</p>
+            <p><strong>Status:</strong> {post.isArchived ? "DELETED" : post.status}</p>
             <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
             <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -181,7 +183,7 @@ const PostDetail = () => {
                                 />
                             )}
                             <strong>{avatarMap[reply.userId]?.userName || `User ${reply.userId}`}</strong>: {reply.comment}
-                            {userInfo?.userId === reply.userId && (
+                            {userInfo?.userId === reply.userId && !isReadOnly && (
                                 <button onClick={() => handleDeleteReply(reply.replyId)} style={{ color: 'red' }}>
                                     Delete
                                 </button>
@@ -191,7 +193,7 @@ const PostDetail = () => {
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
                                     <strong>{avatarMap[sub.userId]?.userName || `User ${sub.userId}`}</strong>: {sub.comment}
-                                    {userInfo?.userId === sub.userId && (
+                                    {userInfo?.userId === sub.userId && !isReadOnly && (
                                         <button onClick={() => handleDeleteSubReply(sub.subReplyId)} style={{ color: 'red', marginLeft: '8px' }}>
                                             Delete
                                         </button>
@@ -199,16 +201,20 @@ const PostDetail = () => {
                                 </li>
                             ))}
                         </ul>
-                        <input
-                            value={subReplyContent[reply.replyId] || ''}
-                            onChange={(e) =>
-                                setSubReplyContent({ ...subReplyContent, [reply.replyId]: e.target.value })
-                            }
-                            placeholder="Reply to this reply..."
-                        />
-                        <button onClick={() => handleSubReply(reply.replyId)} disabled={!userInfo?.active}>
-                            Send Sub-reply
-                        </button>
+                        {!isReadOnly && (
+                            <>
+                                <input
+                                    value={subReplyContent[reply.replyId] || ''}
+                                    onChange={(e) =>
+                                        setSubReplyContent({ ...subReplyContent, [reply.replyId]: e.target.value })
+                                    }
+                                    placeholder="Reply to this reply..."
+                                />
+                                <button onClick={() => handleSubReply(reply.replyId)} disabled={!userInfo?.active}>
+                                    Send Sub-reply
+                                </button>
+                            </>
+                        )}
                     </li>
                 ))}
             </ul>
@@ -216,14 +222,20 @@ const PostDetail = () => {
             <hr />
             <h4>Write a Reply:</h4>
             {!userInfo?.active && <p style={{ color: 'red' }}>You need to verify your email first.</p>}
-            <textarea
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Write your reply..."
-                disabled={!userInfo?.active}
-            />
-            <br />
-            <button onClick={handleReply} disabled={!userInfo?.active}>Reply</button>
+            {isReadOnly ? (
+                <p style={{ color: "gray" }}><i>This post is not open for replies.</i></p>
+            ) : (
+                <>
+                    <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Write your reply..."
+                        disabled={!userInfo?.active}
+                    />
+                    <br />
+                    <button onClick={handleReply} disabled={!userInfo?.active}>Reply</button>
+                </>
+            )}
         </div>
     );
 };

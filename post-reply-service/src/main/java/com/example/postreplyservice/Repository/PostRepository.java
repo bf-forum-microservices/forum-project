@@ -18,4 +18,7 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     List<Post> findByUserIdAndStatus(Long userId, String status);
 
+    List<Post> findByStatusAndIsArchivedFalse(String status);
+
+
 }
