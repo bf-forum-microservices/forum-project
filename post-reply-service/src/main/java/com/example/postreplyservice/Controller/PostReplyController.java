@@ -191,21 +191,15 @@ public class PostReplyController {
 
 
     @DeleteMapping("/posts/replies/{replyId}")
-    public ResponseEntity<String> softDeleteReply(@PathVariable String replyId) {
+    public ResponseEntity<String> deleteReply(@PathVariable String replyId) {
         for (Post post : postRepository.findAll()) {
             List<PostReply> replies = post.getPostReplies();
             if (replies == null) continue;
 
-            for (PostReply reply : replies) {
-                if (reply.getReplyId().equals(replyId)) {
-                    if (Boolean.FALSE.equals(reply.getIsActive())) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body("Reply already deleted.");
-                    }
-                    reply.setIsActive(false);
-                    postRepository.save(post);
-                    return ResponseEntity.ok("Reply soft-deleted.");
-                }
+            boolean removed = replies.removeIf(r -> r.getReplyId().equals(replyId));
+            if (removed) {
+                postRepository.save(post);
+                return ResponseEntity.ok("Reply permanently deleted.");
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reply not found.");
@@ -213,7 +207,7 @@ public class PostReplyController {
 
     // ✅ 软删除子回复（设置 isActive = false）
     @DeleteMapping("/posts/replies/sub-replies/{subReplyId}")
-    public ResponseEntity<String> softDeleteSubReply(@PathVariable String subReplyId) {
+    public ResponseEntity<String> deleteSubReply(@PathVariable String subReplyId) {
         for (Post post : postRepository.findAll()) {
             List<PostReply> replies = post.getPostReplies();
             if (replies == null) continue;
@@ -222,16 +216,10 @@ public class PostReplyController {
                 List<SubReply> subReplies = reply.getSubReplies();
                 if (subReplies == null) continue;
 
-                for (SubReply subReply : subReplies) {
-                    if (subReply.getSubReplyId().equals(subReplyId)) {
-                        if (Boolean.FALSE.equals(subReply.getIsActive())) {
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body("Sub-reply already deleted.");
-                        }
-                        subReply.setIsActive(false);
-                        postRepository.save(post);
-                        return ResponseEntity.ok("Sub-reply soft-deleted.");
-                    }
+                boolean removed = subReplies.removeIf(s -> s.getSubReplyId().equals(subReplyId));
+                if (removed) {
+                    postRepository.save(post);
+                    return ResponseEntity.ok("Sub-reply permanently deleted.");
                 }
             }
         }

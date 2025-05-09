@@ -17,33 +17,22 @@ const PostDetail = () => {
     });
 
     useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const res = await fetch('http://localhost:8080/users/info', {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-                    },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setUserInfo(data);
-                }
-            } catch (err) {
+        fetch('http://localhost:8080/users/info', {
+            headers: getAuthHeaders(),
+        })
+            .then(res => res.json())
+            .then(data => setUserInfo(data))
+            .catch(err => {
                 console.error('Failed to fetch user info:', err);
-            }
-        };
-        fetchUserInfo();
+                setError('Failed to fetch user info.');
+            });
     }, []);
 
     useEffect(() => {
         fetch(`http://localhost:8080/postandreply/singlePosts/${postId}`, {
-            method: 'GET',
             headers: getAuthHeaders(),
         })
-            .then(res => {
-                if (!res.ok) throw new Error("Post not found");
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 setPost(data);
                 setReplies(data.postReplies || []);
@@ -54,29 +43,28 @@ const PostDetail = () => {
             });
     }, [postId]);
 
-    const fetchUserInfoById = async (userId) => {
-        if (avatarMap[userId]) return;
-
-        try {
-            const res = await fetch(`http://localhost:8080/users/infoByUserId/${userId}`, {
-                headers: getAuthHeaders(),
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setAvatarMap(prev => ({
-                    ...prev,
-                    [userId]: {
-                        userName: `${data.firstName} ${data.lastName}`,
-                        profileImageURL: data.profileImageURL
-                    }
-                }));
-            }
-        } catch (err) {
-            console.error(`Failed to load avatar for user ${userId}:`, err);
-        }
-    };
-
     useEffect(() => {
+        const fetchUserInfoById = async (userId) => {
+            if (avatarMap[userId]) return;
+            try {
+                const res = await fetch(`http://localhost:8080/users/infoByUserId/${userId}`, {
+                    headers: getAuthHeaders(),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvatarMap(prev => ({
+                        ...prev,
+                        [userId]: {
+                            userName: `${data.firstName} ${data.lastName}`,
+                            profileImageURL: data.profileImageURL
+                        }
+                    }));
+                }
+            } catch (err) {
+                console.error(`Failed to load avatar for user ${userId}:`, err);
+            }
+        };
+
         if (post) fetchUserInfoById(post.userId);
         replies.forEach(reply => {
             fetchUserInfoById(reply.userId);
@@ -86,13 +74,8 @@ const PostDetail = () => {
 
     const handleReply = async () => {
         if (!replyContent.trim()) return;
-        if (!userInfo || !userInfo.active) {
-            alert("Your account is inactive. You cannot reply.");
-            return;
-        }
-
         try {
-            const response = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
+            const res = await fetch(`http://localhost:8080/postandreply/posts/${postId}/replies`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
@@ -101,9 +84,7 @@ const PostDetail = () => {
                     userName: `${userInfo.firstName} ${userInfo.lastName}`
                 }),
             });
-
-            if (!response.ok) throw new Error('Failed to post reply');
-            const updatedPost = await response.json();
+            const updatedPost = await res.json();
             setReplies(updatedPost.postReplies);
             setReplyContent('');
         } catch (err) {
@@ -114,13 +95,8 @@ const PostDetail = () => {
     const handleSubReply = async (replyId) => {
         const content = subReplyContent[replyId];
         if (!content?.trim()) return;
-        if (!userInfo || !userInfo.active) {
-            alert("Your account is inactive. You cannot reply.");
-            return;
-        }
-
         try {
-            const response = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
+            const res = await fetch(`http://localhost:8080/postandreply/replies/${replyId}/sub-replies`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
@@ -129,9 +105,7 @@ const PostDetail = () => {
                     userName: `${userInfo.firstName} ${userInfo.lastName}`
                 }),
             });
-
-            if (!response.ok) throw new Error('Failed to post sub-reply');
-            const updatedPost = await response.json();
+            const updatedPost = await res.json();
             setReplies(updatedPost.postReplies);
             setSubReplyContent(prev => ({ ...prev, [replyId]: '' }));
         } catch (err) {
@@ -139,48 +113,64 @@ const PostDetail = () => {
         }
     };
 
-    if (error) return <p>{error}</p>;
+    const handleDeleteReply = async (replyId) => {
+        try {
+            await fetch(`http://localhost:8080/postandreply/posts/replies/${replyId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders(),
+            });
+            setReplies(prev => prev.filter(r => r.replyId !== replyId));
+        } catch (err) {
+            console.error('Delete reply failed:', err);
+        }
+    };
+
+    const handleDeleteSubReply = async (subReplyId) => {
+        try {
+            await fetch(`http://localhost:8080/postandreply/posts/replies/sub-replies/${subReplyId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders(),
+            });
+            setReplies(prev =>
+                prev.map(reply => ({
+                    ...reply,
+                    subReplies: reply.subReplies.filter(sub => sub.subReplyId !== subReplyId)
+                }))
+            );
+        } catch (err) {
+            console.error('Delete sub-reply failed:', err);
+        }
+    };
+
+    if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!post) return <p>Loading...</p>;
 
     return (
-        <div className="post-detail" style={{ padding: "20px" }}>
+        <div style={{ padding: '20px' }}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "10px 0" }}>
-                {avatarMap[post.userId]?.profileImageURL && (
-                    <img
-                        src={avatarMap[post.userId].profileImageURL}
-                        alt="author-avatar"
-                        width={50}
-                        height={50}
-                        style={{ borderRadius: "50%" }}
-                    />
-                )}
-                <p><strong>By:</strong> {avatarMap[post.userId]?.userName || `User ${post.userId}`}</p>
-            </div>
-
-            <p>Created: {new Date(post.dateCreated).toLocaleString()}</p>
-            <p>Updated: {new Date(post.dateModified).toLocaleString()}</p>
-
             {post.images?.length > 0 && (
-                <div>
+                <div style={{ marginTop: '15px' }}>
                     <h4>Images:</h4>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                        {post.images.map((img, idx) => (
-                            <img key={idx} src={img} alt={`image-${idx}`} width={120} />
+                        {post.images.map((img, i) => (
+                            <img key={i} src={img} alt={`img-${i}`} width={120} />
                         ))}
                     </div>
                 </div>
             )}
-            
+
+            <p><strong>Status:</strong> {post.status}</p>
+            <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
+            <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
 
             <hr />
             <h3>Replies</h3>
             <ul>
                 {replies.map(reply => (
-                    <li key={reply.replyId}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "5px" }}>
+                    <li key={reply.replyId} style={{ marginBottom: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             {avatarMap[reply.userId]?.profileImageURL && (
                                 <img
                                     src={avatarMap[reply.userId].profileImageURL}
@@ -190,28 +180,25 @@ const PostDetail = () => {
                                     style={{ borderRadius: "50%" }}
                                 />
                             )}
-                            <p><strong>{avatarMap[reply.userId]?.userName || `User ${reply.userId}`}</strong>: {reply.comment}</p>
+                            <strong>{avatarMap[reply.userId]?.userName || `User ${reply.userId}`}</strong>: {reply.comment}
+                            {userInfo?.userId === reply.userId && (
+                                <button onClick={() => handleDeleteReply(reply.replyId)} style={{ color: 'red' }}>
+                                    Delete
+                                </button>
+                            )}
                         </div>
-
-                        <ul>
+                        <ul style={{ paddingLeft: '40px' }}>
                             {reply.subReplies?.map(sub => (
                                 <li key={sub.subReplyId}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "3px" }}>
-                                        {avatarMap[sub.userId]?.profileImageURL && (
-                                            <img
-                                                src={avatarMap[sub.userId].profileImageURL}
-                                                alt="avatar"
-                                                width={35}
-                                                height={35}
-                                                style={{ borderRadius: "50%" }}
-                                            />
-                                        )}
-                                        <strong>{avatarMap[sub.userId]?.userName || `User ${sub.userId}`}</strong>: {sub.comment}
-                                    </div>
+                                    <strong>{avatarMap[sub.userId]?.userName || `User ${sub.userId}`}</strong>: {sub.comment}
+                                    {userInfo?.userId === sub.userId && (
+                                        <button onClick={() => handleDeleteSubReply(sub.subReplyId)} style={{ color: 'red', marginLeft: '8px' }}>
+                                            Delete
+                                        </button>
+                                    )}
                                 </li>
                             ))}
                         </ul>
-
                         <input
                             value={subReplyContent[reply.replyId] || ''}
                             onChange={(e) =>
@@ -228,9 +215,7 @@ const PostDetail = () => {
 
             <hr />
             <h4>Write a Reply:</h4>
-            {!userInfo?.active && (
-                <p style={{ color: 'red' }}>You need to verify your email first. </p>
-            )}
+            {!userInfo?.active && <p style={{ color: 'red' }}>You need to verify your email first.</p>}
             <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
