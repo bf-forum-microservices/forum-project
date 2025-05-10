@@ -208,7 +208,26 @@ const UserProfile = () => {
                                     ? item.postId.split("/posts/")[1]
                                     : item.postId
                             }));
+
+                        // Fetch titles for each post
+                        const postPromises = publishedHistory.map(historyItem =>
+                            axios.get(`http://localhost:8080/postandreply/singlePosts/${historyItem.postId}`, {
+                                headers: { Authorization: `Bearer ${token}` }
+                            })
+                                .then(postRes => ({
+                                    ...historyItem,
+                                    title: postRes.data.title || '(No Title)'
+                                }))
+                                .catch(err => {
+                                    console.error(`Failed to fetch post title for ID ${historyItem.postId}:`, err);
+                                    return { ...historyItem, title: '(Title Not Found)' };
+                                })
+                        );
                         setViewHistory(publishedHistory);
+                        // Wait for all title fetches to complete
+                        Promise.all(postPromises)
+                            .then(updatedHistory => setViewHistory(updatedHistory))
+                            .catch(err => console.error('Failed to fetch post titles:', err));
                     })
                     .catch(err => console.error('Failed to fetch view history:', err));
             })
@@ -361,7 +380,7 @@ const UserProfile = () => {
                         viewHistory.map(history => (
                             <div key={history.historyId} className="post-card">
                                 <h4 className="clickable-title" onClick={() => handlePostClick(history.postId)}>
-                                    Post ID: {history.postId}
+                                    {history.title || 'Post ID: ' + history.postId}
                                 </h4>
                                 <p><strong>Viewed On:</strong> {new Date(history.viewDate).toLocaleString()}</p>
                             </div>
@@ -371,7 +390,6 @@ const UserProfile = () => {
                     )}
                 </div>
             </div>
-
         </div>
     );
 };
