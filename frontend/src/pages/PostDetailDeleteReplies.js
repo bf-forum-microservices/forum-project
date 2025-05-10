@@ -165,16 +165,12 @@ const PostDetailDeleteReplies = () => {
                 ← Back to My Posts
             </button>
 
-            {post.isArchived && (
-                <p style={{ color: 'red', fontWeight: 'bold' }}>
-                    ⚠️ This post has been deleted. You can only view it.
-                </p>
-            )}
             {post.status === "BANNED" && (
                 <p style={{ color: 'orange', fontWeight: 'bold' }}>
                     ⚠️ This post has been banned by an admin. You can only view it.
                 </p>
             )}
+
 
             <h2>{post.title}</h2>
             <p>{post.content}</p>
@@ -200,7 +196,7 @@ const PostDetailDeleteReplies = () => {
                 </div>
             )}
 
-            <p><strong>Status:</strong> {post.isArchived ? "DELETED" : post.status}</p>
+            <p><strong>Status:</strong> {post.status}</p>
             <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
             <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
 
@@ -249,7 +245,7 @@ const PostDetailDeleteReplies = () => {
             <h4>Add a Reply:</h4>
             {isReadOnly ? (
                 <p style={{ color: "gray" }}>
-                    <i>{post.isArchived ? "This post is deleted" : "This post is banned"}. You cannot reply.</i>
+                    <i>{post.isArchived ? "This post is archived by post owner" : "This post is banned"}. You cannot reply.</i>
                 </p>
             ) : (
                 <>

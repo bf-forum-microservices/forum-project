@@ -110,11 +110,19 @@ const UserHome = () => {
             .catch(err => console.error('Action failed:', err));
     };
 
-    const sortedPosts = [...posts].sort((a, b) => {
-        const dateA = new Date(a.dateCreated);
-        const dateB = new Date(b.dateCreated);
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-    });
+    const sortedPosts = [...posts]
+        .filter(post => {
+            if (isAdmin) {
+                return post.status === tab.toUpperCase();
+            }
+            return post.status === "PUBLISHED";
+        })
+        .sort((a, b) => {
+            const dateA = new Date(a.dateCreated);
+            const dateB = new Date(b.dateCreated);
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+
 
     const saveViewHistory = async (postId) => {
         try {

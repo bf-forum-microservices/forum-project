@@ -8,7 +8,8 @@ const MyPosts = () => {
     const [publishedPosts, setPublishedPosts] = useState([]);
     const [draftPosts, setDraftPosts] = useState([]);
     const [bannedRawPosts, setBannedRawPosts] = useState([]);
-    const [hiddenPosts, setHiddenPosts] = useState([]); 
+    const [hiddenPosts, setHiddenPosts] = useState([]);
+    const [archivedPosts, setArchivedPosts] = useState([]);
     const [error, setError] = useState('');
     const [userId, setUserId] = useState(null);
     const [editPost, setEditPost] = useState(null);
@@ -17,9 +18,6 @@ const MyPosts = () => {
     const [editImages, setEditImages] = useState([]);
     const [editStatus, setEditStatus] = useState('');
     const navigate = useNavigate();
-
-
-
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
@@ -33,48 +31,30 @@ const MyPosts = () => {
             const userIdFromToken = decodedToken.userId;
             setUserId(userIdFromToken);
 
-            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=published`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-                .then(response => {
-                    setPublishedPosts(response.data); // 不再过滤 isArchived
-                })
-                .catch(err => {
-                    console.error("Failed to load published posts:", err);
-                    setError('Failed to load published posts.');
-                });
+            const headers = { Authorization: `Bearer ${token}` };
 
-            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=draft`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-                .then(response => {
-                    setDraftPosts(response.data); // 不再过滤 isArchived
-                })
-                .catch(err => {
-                    console.error("Failed to load draft posts:", err);
-                    setError('Failed to load draft posts.');
-                });
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=published`, { headers })
+                .then(response => setPublishedPosts(response.data))
+                .catch(() => setError('Failed to load published posts.'));
 
-            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=banned`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-                .then(response => {
-                    setBannedRawPosts(response.data);
-                })
-                .catch(err => {
-                    console.error("Failed to load banned posts:", err);
-                });
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=draft`, { headers })
+                .then(response => setDraftPosts(response.data))
+                .catch(() => setError('Failed to load draft posts.'));
 
-            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=hidden`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-                .then(response => {
-                    setHiddenPosts(response.data); // 你要新建 useState: const [hiddenPosts, setHiddenPosts] = useState([])
-                })
-                .catch(err => {
-                    console.error("Failed to load hidden posts:", err);
-                });
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=banned`, { headers })
+                .then(response => setBannedRawPosts(response.data))
+                .catch(console.error);
 
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=hidden`, { headers })
+                .then(response => setHiddenPosts(response.data))
+                .catch(console.error);
+
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}`, { headers })
+                .then(response => {
+                    const archived = response.data.filter(post => post.isArchived === true);
+                    setArchivedPosts(archived);
+                })
+                .catch(console.error);
 
         } catch (error) {
             console.error("Invalid Token:", error);
@@ -96,13 +76,10 @@ const MyPosts = () => {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(() => {
-                alert("Post has been hidden successfully.");
-                window.location.reload(); // reload to reflect change
+                alert("Post has been hidden.");
+                window.location.reload();
             })
-            .catch(err => {
-                console.error("Failed to hide post:", err);
-                alert("Failed to hide the post.");
-            });
+            .catch(() => alert("Failed to hide post."));
     };
 
     const handleUnhidePost = (postId) => {
@@ -111,16 +88,35 @@ const MyPosts = () => {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(() => {
-                alert("Post has been made public again.");
-                window.location.reload(); // reload to refresh post lists
+                alert("Post is now public again.");
+                window.location.reload();
             })
-            .catch(err => {
-                console.error("Failed to unhide post:", err);
-                alert("Failed to unhide the post.");
-            });
+            .catch(() => alert("Failed to unhide post."));
     };
 
+    const handleArchivePost = (postId) => {
+        const token = sessionStorage.getItem('token');
+        axios.put(`http://localhost:8080/postandreply/posts/${postId}/archive`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(() => {
+                alert("Post archived successfully!");
+                window.location.reload();
+            })
+            .catch(() => alert("Failed to archive post."));
+    };
 
+    const handleUnarchivePost = (postId) => {
+        const token = sessionStorage.getItem('token');
+        axios.put(`http://localhost:8080/postandreply/posts/${postId}/unarchive`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(() => {
+                alert("Post unarchived successfully!");
+                window.location.reload();
+            })
+            .catch(() => alert("Failed to unarchive post."));
+    };
 
     const uploadFileToS3 = async (file) => {
         const formData = new FormData();
@@ -142,7 +138,6 @@ const MyPosts = () => {
 
     const handleSaveEdit = async () => {
         const token = sessionStorage.getItem('token');
-
         const uploadedImageUrls = [];
         for (const img of editImages) {
             const url = await uploadFileToS3(img);
@@ -159,55 +154,37 @@ const MyPosts = () => {
         axios.patch(`http://localhost:8080/postandreply/posts/${editPost.postId}`, updatedPost, {
             headers: { Authorization: `Bearer ${token}` }
         })
-            .then(response => {
-                alert("Post updated successfully!");
+            .then(() => {
+                alert("Post updated!");
                 window.location.reload();
             })
-            .catch(err => {
-                console.error("Failed to update post:", err);
-                alert("Failed to update post.");
-            });
+            .catch(() => alert("Failed to update post."));
     };
 
     const handleDeletePost = (postId) => {
         const token = sessionStorage.getItem('token');
-
-        if (!postId) {
-            console.error("Invalid postId:", postId);
-            alert("Invalid post ID.");
-            return;
-        }
-
-        axios.delete(`http://localhost:8080/postandreply/posts/${postId}`, {
+        axios.put(`http://localhost:8080/postandreply/posts/${postId}/delete`, {}, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         })
             .then(() => {
-                alert("Post deleted successfully!");
-                window.location.reload(); // 简单方式重新加载数据
+                alert("Post marked as deleted.");
+                window.location.reload();
             })
-            .catch(err => {
-                console.error("Failed to delete post:", err);
-                alert("Failed to delete post.");
-            });
+            .catch(() => alert("Failed to mark post as deleted."));
     };
 
     const handleViewPostDetails = (postId) => {
         navigate(`/myposts/${postId}`);
     };
 
-    const filteredPublished = publishedPosts.filter(
-        post => !post.isArchived && post.status === "PUBLISHED"
-    );
-    const filteredDrafts = draftPosts.filter(
-        post => !post.isArchived && post.status === "DRAFT"
-    );
-    const bannedPosts = bannedRawPosts.filter(post => !post.isArchived);
-
-    const deletedPosts = [...publishedPosts, ...draftPosts].filter(post => post.isArchived);
-
+    // ✅ Merged published + archived
+    const filteredPublished = [...publishedPosts, ...archivedPosts]
+        .filter(post => post.status === "PUBLISHED");
+    const filteredDrafts = draftPosts.filter(post => post.status === "DRAFT");
+    const bannedPosts = bannedRawPosts;
 
     if (error) return <div className="error-message">{error}</div>;
 
@@ -223,13 +200,18 @@ const MyPosts = () => {
                             <li key={post.postId} className="post-item">
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
+                                {post.isArchived && <p style={{ color: 'gray' }}><i>(Archived - comments disabled)</i></p>}
                                 <button onClick={() => handleEditPost(post)}>Edit</button>
-                                <button onClick={() => handleDeletePost(post.postId)}>Delete Post</button>
-                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
-                                <button onClick={() => handleHidePost(post.postId)}>Hide Post</button> {/* 👈 新增按钮 */}
+                                <button onClick={() => handleDeletePost(post.postId)}>Delete</button>
+                                <button onClick={() => handleHidePost(post.postId)}>Hide</button>
+                                {post.isArchived ? (
+                                    <button onClick={() => handleUnarchivePost(post.postId)}>Unarchive</button>
+                                ) : (
+                                    <button onClick={() => handleArchivePost(post.postId)}>Archive</button>
+                                )}
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
                             </li>
                         ))}
-
                     </ul>
                 ) : (
                     <p>No published posts.</p>
@@ -245,31 +227,13 @@ const MyPosts = () => {
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
                                 <button onClick={() => handleEditPost(post)}>Edit</button>
-                                <button onClick={() => handleDeletePost(post.postId)}>Delete Post</button>
-                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
+                                <button onClick={() => handleDeletePost(post.postId)}>Delete</button>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
                             </li>
                         ))}
                     </ul>
                 ) : (
                     <p>No draft posts.</p>
-                )}
-            </div>
-
-            <div className="posts-section">
-                <h3>Deleted Posts</h3>
-                {deletedPosts.length > 0 ? (
-                    <ul className="post-list">
-                        {deletedPosts.map(post => (
-                            <li key={post.postId} className="post-item">
-                                <h4>{post.title}</h4>
-                                <p>{post.content}</p>
-                                <p style={{ color: 'gray' }}><i>This post has been deleted.</i></p>
-                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>No deleted posts.</p>
                 )}
             </div>
 
@@ -282,7 +246,7 @@ const MyPosts = () => {
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
                                 <p style={{ color: 'orange' }}><i>This post has been banned by an admin.</i></p>
-                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
                             </li>
                         ))}
                     </ul>
@@ -301,18 +265,15 @@ const MyPosts = () => {
                                 <p>{post.content}</p>
                                 <p style={{ color: 'gray' }}><i>This post is hidden from public view.</i></p>
                                 <button onClick={() => handleEditPost(post)}>Edit</button>
-                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
-                                <button onClick={() => handleUnhidePost(post.postId)}>Unhide Post</button>
+                                <button onClick={() => handleUnhidePost(post.postId)}>Unhide</button>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
                             </li>
                         ))}
-
                     </ul>
                 ) : (
                     <p>No hidden posts.</p>
                 )}
             </div>
-
-
 
             {editPost && (
                 <div className="edit-modal">

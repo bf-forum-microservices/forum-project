@@ -149,7 +149,14 @@ const PostDetail = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h2>{post.title}</h2>
+            <h2>
+                {post.title}{' '}
+                {post.isArchived && (
+                    <span style={{ color: 'gray', fontSize: '0.9rem', marginLeft: '10px' }}>
+                        [ARCHIVED - Comments disabled]
+                    </span>
+                )}
+            </h2>
             <p>{post.content}</p>
 
             {post.images?.length > 0 && (
@@ -163,7 +170,7 @@ const PostDetail = () => {
                 </div>
             )}
 
-            <p><strong>Status:</strong> {post.isArchived ? "DELETED" : post.status}</p>
+            <p><strong>Status:</strong> {post.status}</p>
             <p><strong>Created:</strong> {new Date(post.dateCreated).toLocaleString()}</p>
             <p><strong>Updated:</strong> {new Date(post.dateModified).toLocaleString()}</p>
 
