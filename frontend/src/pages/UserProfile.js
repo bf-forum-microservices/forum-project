@@ -215,7 +215,7 @@ const UserProfile = () => {
                             })
                                 .then(postRes => {
                                     const post = postRes.data;
-                                    if (post.status === 'PUBLISHED' && post.isArchived === false) {
+                                    if (post.status === 'PUBLISHED') {
                                         return {
                                             ...historyItem,
                                             title: post.title || '(No Title)',
@@ -223,7 +223,7 @@ const UserProfile = () => {
                                             isArchived: post.isArchived
                                         };
                                     }
-                                    return null; // 过滤掉非 PUBLISHED 或已归档的
+                                    return null; // 过滤掉非 PUBLISHED
                                 })
                                 .catch(err => {
                                     console.error(`Failed to fetch post title for ID ${historyItem.postId}:`, err);
