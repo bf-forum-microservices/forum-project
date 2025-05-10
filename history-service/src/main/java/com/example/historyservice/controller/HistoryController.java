@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/history")
@@ -26,20 +27,32 @@ public class HistoryController {
 
     // POST /history/{userId}?postId=123
     @PostMapping("/{userId}")
-    public ResponseEntity<?> addHistory(@PathVariable Long userId,
-                                        @RequestParam String postId) {
+    public ResponseEntity<?> addOrUpdateHistory(@PathVariable Long userId,
+                                                @RequestParam String postId) {
         try {
-            ViewedPost viewedPost = new ViewedPost();
-            viewedPost.setUserId(userId);
-            viewedPost.setPostId(postId);
-            viewedPost.setViewDate(new Date());
-            repository.save(viewedPost);
-            return ResponseEntity.ok("History added.");
+            Optional<ViewedPost> existingRecord = repository.findByUserIdAndPostId(userId, postId);
+
+            if (existingRecord.isPresent()) {
+                // 更新已存在记录的 viewDate
+                ViewedPost viewedPost = existingRecord.get();
+                viewedPost.setViewDate(new Date());
+                repository.save(viewedPost);
+                return ResponseEntity.ok("History updated.");
+            } else {
+                // 创建新记录
+                ViewedPost viewedPost = new ViewedPost();
+                viewedPost.setUserId(userId);
+                viewedPost.setPostId(postId);
+                viewedPost.setViewDate(new Date());
+                repository.save(viewedPost);
+                return ResponseEntity.ok("History added.");
+            }
         } catch (Exception e) {
-            e.printStackTrace(); // 关键调试信息
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error saving history: " + e.getMessage());
         }
     }
+
 
 }
 
