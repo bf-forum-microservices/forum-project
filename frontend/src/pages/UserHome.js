@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './UserHome.css';
 
 const UserHome = () => {
     const [posts, setPosts] = useState([]);
@@ -140,8 +141,7 @@ const UserHome = () => {
 
             if (response.ok) {
                 console.log('Post view recorded successfully');
-                // Navigate to the post detail page after recording the view
-                navigate(`/posts/${postId}`);
+                // navigate(`/posts/${postId}`);
             } else {
                 console.error('Failed to record post view:', response.status);
                 alert('Failed to record post view. Please try again.');
@@ -190,15 +190,16 @@ const UserHome = () => {
 
             <ul className="post-list">
                 {sortedPosts.map(post => (
-                    <li key={post.postId} className="post-item">
-                        <strong
-                            onClick={() => {
-                                saveViewHistory(post.postId);
-                                navigate(`/posts/${post.postId}`);
-                            }}
-                            style={{ cursor: 'pointer' }}>
-                            {post.title || '(No Title)'}
-                        </strong>
+                    <li
+                        key={post.postId}
+                        className="post-item"
+                        onClick={() => {
+                            saveViewHistory(post.postId);
+                            navigate(`/posts/${post.postId}`);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <strong>{post.title || '(No Title)'}</strong>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '5px' }}>
                             {avatarMap[post.userId]?.profileImageURL && (
@@ -211,28 +212,35 @@ const UserHome = () => {
                                 />
                             )}
                             <span>
-                                By: {avatarMap[post.userId]?.userName || 'Loading...'} |{' '}
+            By: {avatarMap[post.userId]?.userName || 'Loading...'} |{' '}
                                 {new Date(post.dateCreated).toLocaleString('en-US', {
                                     year: 'numeric', month: '2-digit', day: '2-digit',
                                     hour: '2-digit', minute: '2-digit', second: '2-digit'
                                 })}
-                            </span>
+        </span>
                         </div>
 
                         {isAdmin && (
                             <div style={{ marginTop: '5px' }}>
                                 {tab === 'published' && (
-                                    <button onClick={() => handleAction(post.postId, 'ban')}>Ban</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'ban'); }}>
+                                        Ban
+                                    </button>
                                 )}
                                 {tab === 'banned' && (
-                                    <button onClick={() => handleAction(post.postId, 'unban')}>Unban</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'unban'); }}>
+                                        Unban
+                                    </button>
                                 )}
                                 {tab === 'deleted' && (
-                                    <button onClick={() => handleAction(post.postId, 'recover')}>Recover</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'recover'); }}>
+                                        Recover
+                                    </button>
                                 )}
                             </div>
                         )}
                     </li>
+
                 ))}
             </ul>
         </div>

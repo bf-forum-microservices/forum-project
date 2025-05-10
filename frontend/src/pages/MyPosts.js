@@ -10,6 +10,7 @@ const MyPosts = () => {
     const [bannedRawPosts, setBannedRawPosts] = useState([]);
     const [hiddenPosts, setHiddenPosts] = useState([]);
     const [archivedPosts, setArchivedPosts] = useState([]);
+    const [deletedPosts, setDeletedPosts] = useState([]);
     const [error, setError] = useState('');
     const [userId, setUserId] = useState(null);
     const [editPost, setEditPost] = useState(null);
@@ -48,6 +49,11 @@ const MyPosts = () => {
             axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=hidden`, { headers })
                 .then(response => setHiddenPosts(response.data))
                 .catch(console.error);
+
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=deleted`, { headers })
+                .then(response => setDeletedPosts(response.data))
+                .catch(() => setError('Failed to load deleted posts.'));
+
 
             axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}`, { headers })
                 .then(response => {
@@ -227,7 +233,6 @@ const MyPosts = () => {
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
                                 <button onClick={() => handleEditPost(post)}>Edit</button>
-                                <button onClick={() => handleDeletePost(post.postId)}>Delete</button>
                                 <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
                             </li>
                         ))}
@@ -247,6 +252,7 @@ const MyPosts = () => {
                                 <p>{post.content}</p>
                                 <p style={{ color: 'orange' }}><i>This post has been banned by an admin.</i></p>
                                 <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
+                                <button onClick={() => handleDeletePost(post.postId)}>Delete</button>
                             </li>
                         ))}
                     </ul>
@@ -274,6 +280,25 @@ const MyPosts = () => {
                     <p>No hidden posts.</p>
                 )}
             </div>
+
+            <div className="posts-section">
+                <h3>Deleted Posts</h3>
+                {deletedPosts.length > 0 ? (
+                    <ul className="post-list">
+                        {deletedPosts.map(post => (
+                            <li key={post.postId} className="post-item">
+                                <h4>{post.title}</h4>
+                                <p>{post.content}</p>
+                                <p style={{ color: 'gray' }}><i>This post has been deleted.</i></p>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No deleted posts.</p>
+                )}
+            </div>
+
 
             {editPost && (
                 <div className="edit-modal">

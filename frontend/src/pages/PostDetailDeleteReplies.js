@@ -146,7 +146,7 @@ const PostDetailDeleteReplies = () => {
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!post) return <p>Loading...</p>;
 
-    const isReadOnly = post.isArchived || post.status === "BANNED";
+    const isReadOnly = post.isArchived || post.status === "BANNED" || post.status === "DELETED";
 
     return (
         <div className="post-detail" style={{ padding: "20px" }}>
@@ -245,7 +245,12 @@ const PostDetailDeleteReplies = () => {
             <h4>Add a Reply:</h4>
             {isReadOnly ? (
                 <p style={{ color: "gray" }}>
-                    <i>{post.isArchived ? "This post is archived by post owner" : "This post is banned"}. You cannot reply.</i>
+                    <i>
+                        {post.isArchived && "This post is archived by the post owner."}
+                        {post.status === "DELETED" && "This post is deleted by the post owner."}
+                        {post.status === "BANNED" && "This post is banned by admin."}
+                        {" "}You cannot reply.
+                    </i>
                 </p>
             ) : (
                 <>
