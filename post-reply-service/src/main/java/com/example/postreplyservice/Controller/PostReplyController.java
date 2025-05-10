@@ -135,6 +135,25 @@ public class PostReplyController {
         }
     }
 
+    // 用户隐藏帖子（Published → Hidden）
+    @PutMapping("/posts/{id}/hide")
+    public Post hidePost(@PathVariable String id) {
+        Post post = postRepository.findById(id).orElseThrow();
+        post.setStatus("HIDDEN");
+        return postRepository.save(post);
+    }
+
+    // 用户取消隐藏（Hidden → Published）
+    @PutMapping("/posts/{id}/unhide")
+    public Post unhidePost(@PathVariable String id) {
+        Post post = postRepository.findById(id).orElseThrow();
+        if ("HIDDEN".equals(post.getStatus())) {
+            post.setStatus("PUBLISHED");
+        }
+        return postRepository.save(post);
+    }
+
+
 
     // Admin 禁用帖子
     @PutMapping("/admin/posts/{id}/ban")

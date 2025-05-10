@@ -200,36 +200,46 @@ const UserProfile = () => {
                 })
                     .then(historyRes => {
                         const publishedHistory = historyRes.data
-                            .filter(item => item.postId)  // Filter out empty postId entries
+                            .filter(item => item.postId) // 排除无效ID
                             .map(item => ({
                                 ...item,
-                                // Extract only the post ID, removing the "/posts/" prefix if present
                                 postId: item.postId.startsWith("/posts/")
                                     ? item.postId.split("/posts/")[1]
                                     : item.postId
                             }));
 
-                        // Fetch titles for each post
+                        // 发请求获取每篇帖子的详细信息并附上标题
                         const postPromises = publishedHistory.map(historyItem =>
                             axios.get(`http://localhost:8080/postandreply/singlePosts/${historyItem.postId}`, {
                                 headers: { Authorization: `Bearer ${token}` }
                             })
-                                .then(postRes => ({
-                                    ...historyItem,
-                                    title: postRes.data.title || '(No Title)'
-                                }))
+                                .then(postRes => {
+                                    const post = postRes.data;
+                                    if (post.status === 'PUBLISHED' && post.isArchived === false) {
+                                        return {
+                                            ...historyItem,
+                                            title: post.title || '(No Title)',
+                                            status: post.status,
+                                            isArchived: post.isArchived
+                                        };
+                                    }
+                                    return null; // 过滤掉非 PUBLISHED 或已归档的
+                                })
                                 .catch(err => {
                                     console.error(`Failed to fetch post title for ID ${historyItem.postId}:`, err);
-                                    return { ...historyItem, title: '(Title Not Found)' };
+                                    return null;
                                 })
                         );
-                        setViewHistory(publishedHistory);
-                        // Wait for all title fetches to complete
+
                         Promise.all(postPromises)
-                            .then(updatedHistory => setViewHistory(updatedHistory))
+                            .then(updatedHistory => {
+                                const filtered = updatedHistory.filter(item => item !== null);
+                                setViewHistory(filtered);
+                            })
                             .catch(err => console.error('Failed to fetch post titles:', err));
                     })
                     .catch(err => console.error('Failed to fetch view history:', err));
+
             })
             .catch(() => {
                 setError('Failed to load profile.');

@@ -7,6 +7,8 @@ import { jwtDecode } from 'jwt-decode';
 const MyPosts = () => {
     const [publishedPosts, setPublishedPosts] = useState([]);
     const [draftPosts, setDraftPosts] = useState([]);
+    const [bannedRawPosts, setBannedRawPosts] = useState([]);
+    const [hiddenPosts, setHiddenPosts] = useState([]); 
     const [error, setError] = useState('');
     const [userId, setUserId] = useState(null);
     const [editPost, setEditPost] = useState(null);
@@ -15,7 +17,7 @@ const MyPosts = () => {
     const [editImages, setEditImages] = useState([]);
     const [editStatus, setEditStatus] = useState('');
     const navigate = useNavigate();
-    const [bannedRawPosts, setBannedRawPosts] = useState([]);
+
 
 
 
@@ -63,6 +65,16 @@ const MyPosts = () => {
                     console.error("Failed to load banned posts:", err);
                 });
 
+            axios.get(`http://localhost:8080/postandreply/posts/user/${userIdFromToken}?status=hidden`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+                .then(response => {
+                    setHiddenPosts(response.data); // 你要新建 useState: const [hiddenPosts, setHiddenPosts] = useState([])
+                })
+                .catch(err => {
+                    console.error("Failed to load hidden posts:", err);
+                });
+
 
         } catch (error) {
             console.error("Invalid Token:", error);
@@ -77,6 +89,38 @@ const MyPosts = () => {
         setEditImages([]);
         setEditStatus(post.status);
     };
+
+    const handleHidePost = (postId) => {
+        const token = sessionStorage.getItem('token');
+        axios.put(`http://localhost:8080/postandreply/posts/${postId}/hide`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(() => {
+                alert("Post has been hidden successfully.");
+                window.location.reload(); // reload to reflect change
+            })
+            .catch(err => {
+                console.error("Failed to hide post:", err);
+                alert("Failed to hide the post.");
+            });
+    };
+
+    const handleUnhidePost = (postId) => {
+        const token = sessionStorage.getItem('token');
+        axios.put(`http://localhost:8080/postandreply/posts/${postId}/unhide`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(() => {
+                alert("Post has been made public again.");
+                window.location.reload(); // reload to refresh post lists
+            })
+            .catch(err => {
+                console.error("Failed to unhide post:", err);
+                alert("Failed to unhide the post.");
+            });
+    };
+
+
 
     const uploadFileToS3 = async (file) => {
         const formData = new FormData();
@@ -182,8 +226,10 @@ const MyPosts = () => {
                                 <button onClick={() => handleEditPost(post)}>Edit</button>
                                 <button onClick={() => handleDeletePost(post.postId)}>Delete Post</button>
                                 <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
+                                <button onClick={() => handleHidePost(post.postId)}>Hide Post</button> {/* 👈 新增按钮 */}
                             </li>
                         ))}
+
                     </ul>
                 ) : (
                     <p>No published posts.</p>
@@ -244,6 +290,28 @@ const MyPosts = () => {
                     <p>No banned posts.</p>
                 )}
             </div>
+
+            <div className="posts-section">
+                <h3>Hidden Posts</h3>
+                {hiddenPosts.length > 0 ? (
+                    <ul className="post-list">
+                        {hiddenPosts.map(post => (
+                            <li key={post.postId} className="post-item">
+                                <h4>{post.title}</h4>
+                                <p>{post.content}</p>
+                                <p style={{ color: 'gray' }}><i>This post is hidden from public view.</i></p>
+                                <button onClick={() => handleEditPost(post)}>Edit</button>
+                                <button onClick={() => handleViewPostDetails(post.postId)}>View Details</button>
+                                <button onClick={() => handleUnhidePost(post.postId)}>Unhide Post</button>
+                            </li>
+                        ))}
+
+                    </ul>
+                ) : (
+                    <p>No hidden posts.</p>
+                )}
+            </div>
+
 
 
             {editPost && (
