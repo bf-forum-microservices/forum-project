@@ -290,6 +290,10 @@ const UserProfile = () => {
         navigate(`/myposts/${postId}`);
     };
 
+    const handleViewedPostClick = (postId) => {
+        navigate(`/posts/${postId}`);
+    };
+
     if (error) return <div className="error-message">{error}</div>;
     if (!userInfo) return <div>Loading profile...</div>;
 
@@ -379,7 +383,7 @@ const UserProfile = () => {
                     {viewHistory.length > 0 ? (
                         viewHistory.map(history => (
                             <div key={history.historyId} className="post-card">
-                                <h4 className="clickable-title" onClick={() => handlePostClick(history.postId)}>
+                                <h4 className="clickable-title" onClick={() => handleViewedPostClick(history.postId)}>
                                     {history.title || 'Post ID: ' + history.postId}
                                 </h4>
                                 <p><strong>Viewed On:</strong> {new Date(history.viewDate).toLocaleString()}</p>
