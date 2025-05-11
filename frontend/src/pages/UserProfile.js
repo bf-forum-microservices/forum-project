@@ -157,7 +157,9 @@ const UserProfile = () => {
         firstName: '',
         lastName: '',
         password: '',
-        profileImageURL: ''
+        // profileImageURL: ''
+        profileImage: ''
+
     });
     const [emailEditMode, setEmailEditMode] = useState(false);
     const [newEmail, setNewEmail] = useState('');
@@ -252,12 +254,44 @@ const UserProfile = () => {
             [e.target.name]: e.target.value
         }));
     };
+    const uploadFileToS3 = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('password', 'password123');
+
+        try {
+            const res = await fetch('http://localhost:8087/s3/upload', {
+                method: 'POST',
+                body: formData
+            });
+            if (!res.ok) throw new Error('Upload failed');
+            return await res.text(); // 返回 URL
+        } catch (err) {
+            console.error('File upload error:', err);
+            return null;
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = sessionStorage.getItem('token');
         try {
-            await axios.put('http://localhost:8080/users/updateProfile', formData, {
+            let imageUrl = formData.profileImageURL;
+
+            // If a file is selected, upload it
+            if (formData.profileImage instanceof File) {
+                imageUrl = await uploadFileToS3(formData.profileImage);
+                if (!imageUrl) throw new Error('Image upload failed');
+            }
+
+            const updatedData = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                password: formData.password,
+                profileImageURL: imageUrl
+            };
+console.log(updatedData);
+            await axios.put('http://localhost:8080/users/updateProfile', updatedData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert('Profile updated successfully!');
@@ -328,8 +362,15 @@ const UserProfile = () => {
                         <label>Password:</label>
                         <input name="password" type="password" value={formData.password} onChange={handleChange} />
 
-                        <label>Profile Image URL:</label>
-                        <input name="profileImageURL" value={formData.profileImageURL} onChange={handleChange} />
+                        {/*<label>Profile Image URL:</label>*/}
+                        {/*<input name="profileImageURL" value={formData.profileImageURL} onChange={handleChange} />*/}
+                        <label>Profile Image:</label>
+                        <input
+                            type="file"
+                            name="profileImage"
+                            accept="image/*"
+                            onChange={(e) => setFormData(prev => ({ ...prev, profileImage: e.target.files[0] }))}
+                        />
 
                         <button type="submit">Save</button>
                         <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
