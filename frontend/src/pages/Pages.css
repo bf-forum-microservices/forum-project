@@ -67,7 +67,7 @@ button[type="submit"] {
     margin-right: 0.5rem;
 }
 
-button[type="button"] {
+button[type="link"] {
     background-color: transparent;
     color: blue;
     border: none;
@@ -75,6 +75,15 @@ button[type="button"] {
     text-decoration: underline;
     font-size: 1rem;
     padding: 0;
+}
+
+button[type="button"] {
+    font-size: 1rem;
+    padding: 6px;
+    background-color: cornflowerblue;
+    color: white;
+    border-radius: 6px;
+    margin-right: 0.5rem;
 }
 
 .error-message {

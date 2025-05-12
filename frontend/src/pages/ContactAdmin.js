@@ -87,11 +87,13 @@ const ContactAdmin = () => {
     };
 
     return (
-        <div className="container mt-5" style={{ maxWidth: '600px' }}>
-            <h2 className="mb-4">Contact Admin</h2>
+        <div className="container mt-5" style={{ maxWidth: '500px' }}>
+            <h2 className="mb-4 text-center">Contact Admin</h2>
             <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-3">
-                    <label htmlFor="userId" className="form-label">{isAuthenticated() ? 'User ID' : 'User ID (Optional)'}</label>
+                    <label htmlFor="userId" className="form-label">
+                        User ID<span className="text-danger">{isAuthenticated() ? '*' : ''}</span>
+                    </label>
                     <input
                         type="text"
                         name="userId"
@@ -148,7 +150,7 @@ const ContactAdmin = () => {
                     {errors.message && <div className="invalid-feedback">{errors.message}</div>}
                 </div>
 
-                <button type="submit" className="btn btn-primary w-100">
+                <button type="submit" className="btn btn-success w-100">
                     Submit
                 </button>
             </form>

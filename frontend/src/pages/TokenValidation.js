@@ -35,29 +35,43 @@ const EmailVerification = () => {
     };
 
     return (
-        <div className="email-verification">
-            <h2>Email Verification</h2>
-            <form onSubmit={handleSubmit}>
-                <label>Email:</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <br />
-                <label>Enter the 6-digit code sent to your email:</label>
-                <input
-                    type="text"
-                    maxLength="6"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    required
-                />
-                <button type="submit">Verify</button>
+        <div className="container mt-5" style={{ maxWidth: '500px' }}>
+            <h2 className="mb-4 text-center">Email Verification</h2>
+            <form onSubmit={handleSubmit} noValidate>
+                <div className="mb-3">
+                    <label htmlFor="email" className="form-label">
+                        Email <span className="text-danger">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+
+                <div className="mb-3">
+                    <label htmlFor="code" className="form-label">
+                        6-digit Verification Code <span className="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        maxLength="6"
+                        className="form-control"
+                        id="code"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        required
+                    />
+                </div>
+
+                {error && <div className="alert alert-danger" role="alert">{error}</div>}
+                {message && <div className="alert alert-success" role="alert">{message}</div>}
+
+                <button type="submit" className="btn btn-primary w-100">Verify</button>
             </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {message && <p style={{ color: 'green' }}>{message}</p>}
         </div>
     );
 };

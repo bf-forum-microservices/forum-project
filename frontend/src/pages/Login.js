@@ -45,7 +45,7 @@ const Login = () => {
 
     return (
         <div className="container mt-5" style={{ maxWidth: '500px' }}>
-            <h2 className="mb-4">Login</h2>
+            <h2 className="mb-4 text-center">Login</h2>
             <form onSubmit={handleLogin} noValidate>
                 <div className="mb-3">
                     <label htmlFor="email" className="form-label">Email<span className="text-danger">*</span></label>
@@ -78,7 +78,7 @@ const Login = () => {
 
             <p className="mt-3 text-center">
                 Don’t have an account?{' '}
-                <button onClick={() => navigate('/register')} type="button">
+                <button onClick={() => navigate('/register')} type="link">
                     Register here
                 </button>
             </p>
