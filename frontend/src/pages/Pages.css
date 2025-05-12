@@ -60,7 +60,11 @@ button {
     border-radius: 6px;
     margin-right: 0.5rem;
 }
-
+.admin-btn:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
 button[type="submit"] {
     background-color: #4caf50;
     color: white;
