@@ -3,7 +3,7 @@ import {Routes, Route, Navigate} from 'react-router-dom';
 import { isAuthenticated } from "./auth";
 import Login from './pages/Login';
 import Register from './pages/Register';
-import UserHome from './pages/UserHome';
+import Home from './pages/Home';
 import UserProfile from './pages/UserProfile';
 import ContactAdmin from './pages/ContactAdmin';
 import PostDetail from './pages/PostDetail';
@@ -35,8 +35,8 @@ const App = () => {
                     <Route path="/contactus" element={<ContactAdmin/>}/>
 
                     {/* Protected Routes */}
-                    <Route path="/" element={<PrivateRoute><UserHome/></PrivateRoute>}/>
-                    <Route path="/home" element={<PrivateRoute><UserHome/></PrivateRoute>}/>
+                    <Route path="/" element={<PrivateRoute><Home/></PrivateRoute>}/>
+                    <Route path="/home" element={<PrivateRoute><Home/></PrivateRoute>}/>
                     <Route path="/profile" element={<PrivateRoute><UserProfile/></PrivateRoute>}/>
                     <Route path="/create-post" element={<PrivateRoute><CreatePost/></PrivateRoute>}/>
                     <Route path="/posts/:id" element={<PrivateRoute><PostDetail/></PrivateRoute>}/>

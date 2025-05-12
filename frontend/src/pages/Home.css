@@ -1,0 +1,82 @@
+.user-home {
+    padding: 20px;
+}
+
+.post-item button {
+    margin-top: 8px;
+    margin-right: 8px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.post-item button:hover {
+    background-color: #0056b3;
+}
+
+
+.post-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 0 10px;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+.post-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s;
+}
+
+.post-item:hover {
+    transform: translateY(-4px);
+}
+
+.post-item img {
+    border-radius: 50%;
+}
+
+.admin-tabs,
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.admin-tabs button,
+.actions button {
+    padding: 10px 20px;
+    background-color: cornflowerblue;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.admin-tabs button:hover,
+.actions button:hover {
+    background-color: #125ea8;
+}
+
+.admin-tabs button:focus,
+.actions button:focus {
+    outline: 2px solid #125ea8;
+}
+
+.admin-tabs button.active,
+.actions button.active {
+    background-color: #125ea8;
+    outline: 2px solid #125ea8;
+}

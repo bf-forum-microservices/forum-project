@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './UserHome.css';
+import './Home.css';
+import './Pages.css';
 
-const UserHome = () => {
+const Home = () => {
     const [posts, setPosts] = useState([]);
     const [sortOrder, setSortOrder] = useState('desc');
     const [tab, setTab] = useState('published');
@@ -154,13 +155,30 @@ const UserHome = () => {
 
     return (
         <div className="user-home">
-            <h2>{isAdmin ? `Admin: ${tab.charAt(0).toUpperCase() + tab.slice(1)} Posts` : 'All Published Posts'}</h2>
+            <h2 className="mb-4 text-center">
+                {isAdmin ? `Admin: ${tab.charAt(0).toUpperCase() + tab.slice(1)} Posts` : 'All Published Posts'}
+            </h2>
 
             {isAdmin && (
                 <div className="admin-tabs">
-                    <button onClick={() => setTab('published')}>Published</button>
-                    <button onClick={() => setTab('banned')}>Banned</button>
-                    <button onClick={() => setTab('deleted')}>Deleted</button>
+                    <button
+                        className={tab === 'published' ? 'active' : ''}
+                        onClick={() => setTab('published')}
+                    >
+                        Published
+                    </button>
+                    <button
+                        className={tab === 'banned' ? 'active' : ''}
+                        onClick={() => setTab('banned')}
+                    >
+                        Banned
+                    </button>
+                    <button
+                        className={tab === 'deleted' ? 'active' : ''}
+                        onClick={() => setTab('deleted')}
+                    >
+                        Deleted
+                    </button>
                 </div>
             )}
 
@@ -223,17 +241,17 @@ const UserHome = () => {
                         {isAdmin && (
                             <div style={{ marginTop: '5px' }}>
                                 {tab === 'published' && (
-                                    <button onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'ban'); }}>
+                                    <button style={{ backgroundColor: "indianred" }} onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'ban'); }}>
                                         Ban
                                     </button>
                                 )}
                                 {tab === 'banned' && (
-                                    <button onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'unban'); }}>
+                                    <button style={{ backgroundColor: "#4caf50" }} onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'unban'); }}>
                                         Unban
                                     </button>
                                 )}
                                 {tab === 'deleted' && (
-                                    <button onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'recover'); }}>
+                                    <button style={{ backgroundColor: "cornflowerblue" }} onClick={(e) => { e.stopPropagation(); handleAction(post.postId, 'recover'); }}>
                                         Recover
                                     </button>
                                 )}
@@ -247,4 +265,4 @@ const UserHome = () => {
     );
 };
 
-export default UserHome;
+export default Home;

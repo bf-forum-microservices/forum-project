@@ -132,14 +132,14 @@ const Register = () => {
     const uploadToS3 = async () => {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('password', 'password123'); // required by backend
+        formData.append('password', 'password123');
 
         const res = await fetch('http://localhost:8087/s3/upload', {
             method: 'POST',
             body: formData
         });
 
-        return await res.text(); // backend returns URL as plain text
+        return await res.text();
     };
 
     const handleRegister = async (e) => {
@@ -179,62 +179,85 @@ const Register = () => {
     };
 
     return (
-        <div className="page-shift">
-            <div className="profile-container">
-                <h2>Register</h2>
-                <form onSubmit={handleRegister}>
-                    <label>First Name:</label>
+        <div className="container mt-5" style={{ maxWidth: '500px' }}>
+            <h2 className="mb-4 text-center">Register</h2>
+            <form onSubmit={handleRegister} noValidate>
+                <div className="mb-3">
+                    <label className="form-label">First Name
+                        <span className="text-danger">*</span>
+                    </label>
                     <input
                         type="text"
                         name="firstName"
+                        className="form-control"
                         value={formData.firstName}
                         onChange={handleChange}
                         required
                     />
+                </div>
 
-                    <label>Last Name:</label>
+                <div className="mb-3">
+                    <label className="form-label">Last Name
+                        <span className="text-danger">*</span>
+                    </label>
                     <input
                         type="text"
                         name="lastName"
+                        className="form-control"
                         value={formData.lastName}
                         onChange={handleChange}
                         required
                     />
+                </div>
 
-                    <label>Email:</label>
+                <div className="mb-3">
+                    <label className="form-label">Email
+                        <span className="text-danger">*</span>
+                    </label>
                     <input
                         type="email"
                         name="email"
+                        className="form-control"
                         value={formData.email}
                         onChange={handleChange}
                         required
                     />
+                </div>
 
-                    <label>Password:</label>
+                <div className="mb-3">
+                    <label className="form-label">Password
+                        <span className="text-danger">*</span>
+                    </label>
                     <input
                         type="password"
                         name="password"
+                        className="form-control"
                         value={formData.password}
                         onChange={handleChange}
                         required
                     />
+                </div>
 
-                    <label>Upload Profile Picture (optional):</label>
+                <div className="mb-3">
+                    <label className="form-label">Profile Picture (optional)</label>
                     <input
                         type="file"
+                        className="form-control"
                         accept="image/*"
                         onChange={handleFileChange}
                     />
+                </div>
 
-                    {error && <p className="error-message">{error}</p>}
-                    {message && <p className="success-message">{message}</p>}
+                {error && <div className="alert alert-danger">{error}</div>}
+                {message && <div className="alert alert-success">{message}</div>}
 
-                    <button type="submit">Register</button>
-                </form>
+                <button type="submit" className="btn btn-success w-100">Register</button>
+            </form>
 
+            <div className="text-center mt-3">
                 <p>
                     Already have an account?{' '}
-                    <button onClick={() => navigate('/login')} type="button">
+                    <button onClick={() => navigate('/login')} type="link">
                         Login here
                     </button>
                 </p>
@@ -243,4 +266,5 @@ const Register = () => {
     );
 };
 
-export default Register; 
+export default Register;
+
