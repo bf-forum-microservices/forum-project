@@ -207,15 +207,15 @@ const MyPosts = () => {
                                 <h4>{post.title}</h4>
                                 <p>{post.content}</p>
                                 {post.isArchived && <p style={{ color: 'gray' }}><i>(Archived - comments disabled)</i></p>}
-                                <button onClick={() => handleEditPost(post)}>Edit</button>
-                                <button onClick={() => handleDeletePost(post.postId)}>Delete</button>
-                                <button onClick={() => handleHidePost(post.postId)}>Hide</button>
+                                <button type="button" onClick={() => handleEditPost(post)}>Edit</button>
+                                <button type="button" onClick={() => handleDeletePost(post.postId)}>Delete</button>
+                                <button type="button" onClick={() => handleHidePost(post.postId)}>Hide</button>
                                 {post.isArchived ? (
-                                    <button onClick={() => handleUnarchivePost(post.postId)}>Unarchive</button>
+                                    <button type="button" onClick={() => handleUnarchivePost(post.postId)}>Unarchive</button>
                                 ) : (
-                                    <button onClick={() => handleArchivePost(post.postId)}>Archive</button>
+                                    <button type="button" onClick={() => handleArchivePost(post.postId)}>Archive</button>
                                 )}
-                                <button onClick={() => handleViewPostDetails(post.postId)}>View</button>
+                                <button type="button" onClick={() => handleViewPostDetails(post.postId)}>View</button>
                             </li>
                         ))}
                     </ul>

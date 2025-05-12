@@ -209,3 +209,7 @@ button[type="button"] {
     border-radius: 4px;
     font-size: 0.85rem;
 }
+
+.card-header {
+    background-color: lightslategray;
+}

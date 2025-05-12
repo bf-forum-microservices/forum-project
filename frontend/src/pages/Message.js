@@ -41,7 +41,7 @@ const Message = () => {
     return (
         <div className="container mt-5" style={{ maxWidth: '700px' }}>
             <div className="card shadow-sm">
-                <div className="card-header bg-primary text-white">
+                <div className="card-header bg-dark text-white">
                     <h4 className="mb-0">Message Details</h4>
                 </div>
                 <div className="card-body">

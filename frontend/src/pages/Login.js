@@ -22,8 +22,7 @@ const Login = () => {
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || 'Login failed');
+                throw new Error(await response.text());
             }
 
             const data = await response.json();
@@ -38,8 +37,8 @@ const Login = () => {
             navigate('/home');
 
         } catch (err) {
-            console.error('Login error:', err);
-            setError(err.message);
+            const errorMessage = `Login error:  ${err.message}`;
+            setError(errorMessage);
         }
     };
 
