@@ -176,8 +176,10 @@ console.log(updatedData);
             await axios.post('http://localhost:8080/users/verifyUpdateEmailCode', { code: emailVerificationCode }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            alert('Email updated successfully!');
+            alert('Email updated successfully! Please log back in.');
             setEmailEditMode(false);
+            sessionStorage.removeItem('token');
+            navigate('/login');
             window.location.reload(); // Refresh profile info
         } catch (err) {
             alert('Invalid or expired verification code.');
