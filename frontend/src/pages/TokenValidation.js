@@ -70,7 +70,7 @@ const EmailVerification = () => {
                 {error && <div className="alert alert-danger" role="alert">{error}</div>}
                 {message && <div className="alert alert-success" role="alert">{message}</div>}
 
-                <button type="submit" className="btn btn-primary w-100">Verify</button>
+                <button type="submit" className="btn btn-success w-100">Verify</button>
             </form>
         </div>
     );
