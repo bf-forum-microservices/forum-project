@@ -228,6 +228,7 @@ console.log(updatedData);
 
                         <button type="submit">Save</button>
                         <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
+                        <br />
                     </form>
                 ) : (
                     <>
